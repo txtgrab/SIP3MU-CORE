@@ -1,0 +1,2569 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model tb_apc {
+  id_apc          Int               @id @default(autoincrement())
+  id_institusi    Int
+  nidn            String            @db.VarChar(20)
+  no_ktp          String            @default("") @db.VarChar(16)
+  no_npwp         String            @default("") @db.VarChar(30)
+  no_rek          String            @default("") @db.VarChar(30)
+  tipe_publikasi  String            @db.VarChar(50)
+  judul_publikasi String            @db.VarChar(200)
+  nama_jurnal     String            @db.VarChar(100)
+  link_jurnal     String?           @db.VarChar(300)
+  link_artikel    String?           @db.VarChar(300)
+  quartil         String?           @db.VarChar(5)
+  auth_ke         Int?
+  tgl_invoice     DateTime?         @db.Date
+  tgl_payment     DateTime?         @db.Date
+  mata_uang       String?           @db.VarChar(100)
+  total_payment   BigInt?
+  status_usulan   String?           @db.VarChar(100)
+  created_at      DateTime          @default(now()) @db.Timestamp(0)
+  updated_at      DateTime          @default(now()) @db.Timestamp(0)
+  tb_apc_lampiran tb_apc_lampiran[]
+  tb_apc_mhs      tb_apc_mhs[]
+}
+
+model tb_apc_lampiran {
+  id_lampiran    Int                             @id @default(autoincrement())
+  id_apc         Int
+  jenis_lampiran tb_apc_lampiran_jenis_lampiran?
+  lampiran       String                          @db.VarChar(300)
+  created_at     DateTime                        @default(now()) @db.Timestamp(0)
+  tb_apc         tb_apc                          @relation(fields: [id_apc], references: [id_apc], onDelete: Cascade, map: "fk_apc_lamp_apc")
+
+  @@index([id_apc], map: "fk_apc_lamp_apc")
+}
+
+model tb_apc_mhs {
+  id_apc_mhs Int      @id @default(autoincrement())
+  nim        String   @db.VarChar(14)
+  id_apc     Int
+  id_prodi   Int?
+  nama_mhs   String?  @db.VarChar(100)
+  degree     String?  @db.VarChar(50)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  tb_apc     tb_apc   @relation(fields: [id_apc], references: [id_apc], onDelete: Cascade, map: "fk_apc_mhs_apc")
+
+  @@unique([nim, id_apc], map: "uq_apc_mhs")
+  @@index([id_apc], map: "fk_apc_mhs_apc")
+}
+
+model tb_api_key {
+  id_api_key Int      @id @default(autoincrement())
+  id_user    Int
+  nama       String   @db.VarChar(100)
+  api_key    String   @unique(map: "uq_api_key") @db.VarChar(128)
+  is_active  Int      @default(1) @db.TinyInt
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @db.Timestamp(0)
+  tb_user    tb_user  @relation(fields: [id_user], references: [id_user], onDelete: Cascade, map: "fk_apikey_user")
+
+  @@index([id_user], map: "idx_apikey_user")
+}
+
+model tb_bidang_penelitian {
+  id_bidang   Int         @id @default(autoincrement())
+  nama_bidang String      @unique(map: "uq_nama_bidang") @db.VarChar(200)
+  status      Int         @default(1) @db.TinyInt
+  created_at  DateTime    @default(now()) @db.Timestamp(0)
+  tb_usulan   tb_usulan[]
+}
+
+model tb_desk_penelitian {
+  id_desk       Int                          @id @default(autoincrement())
+  id_usulan     Int
+  id_reviewer   Int
+  nidn_reviewer String                       @db.VarChar(20)
+  skor_1        Int                          @default(0)
+  nilai_1       Int                          @default(0)
+  skor_2        Int                          @default(0)
+  nilai_2       Int                          @default(0)
+  skor_3        Int                          @default(0)
+  nilai_3       Int                          @default(0)
+  skor_4        Int                          @default(0)
+  nilai_4       Int                          @default(0)
+  skor_5        Int                          @default(0)
+  nilai_5       Int                          @default(0)
+  skor_6        Int                          @default(0)
+  nilai_6       Int                          @default(0)
+  total         Int                          @default(0)
+  rekom_dana    BigInt                       @default(0)
+  rekom_dana2   BigInt                       @default(0)
+  rekom_dana3   BigInt                       @default(0)
+  rekom_dana4   BigInt                       @default(0)
+  komentar      String                       @db.Text
+  ketetapan     tb_desk_penelitian_ketetapan @default(revisi)
+  cat_manaj     String                       @db.Text
+  tanggal       DateTime                     @db.Date
+  created_at    DateTime                     @default(now()) @db.Timestamp(0)
+  updated_at    DateTime                     @default(now()) @db.Timestamp(0)
+  tb_usulan     tb_usulan                    @relation(fields: [id_usulan], references: [id_usulan], map: "fk_desk_pen_usulan")
+
+  @@unique([id_usulan, id_reviewer], map: "uq_desk_pen")
+}
+
+model tb_desk_pengabdian {
+  id_desk       Int                          @id @default(autoincrement())
+  id_usulan     Int
+  id_reviewer   Int
+  nidn_reviewer String                       @db.VarChar(20)
+  skor_1        Int                          @default(0)
+  nilai_1       Int                          @default(0)
+  skor_2        Int                          @default(0)
+  nilai_2       Int                          @default(0)
+  skor_3        Int                          @default(0)
+  nilai_3       Int                          @default(0)
+  skor_4        Int                          @default(0)
+  nilai_4       Int                          @default(0)
+  skor_5        Int                          @default(0)
+  nilai_5       Int                          @default(0)
+  skor_6        Int                          @default(0)
+  nilai_6       Int                          @default(0)
+  skor_7        Int                          @default(0)
+  nilai_7       Int                          @default(0)
+  skor_8        Int                          @default(0)
+  nilai_8       Int                          @default(0)
+  skor_9        Int                          @default(0)
+  nilai_9       Int                          @default(0)
+  skor_10       Int                          @default(0)
+  nilai_10      Int                          @default(0)
+  skor_11       Int                          @default(0)
+  nilai_11      Int                          @default(0)
+  skor_12       Int                          @default(0)
+  nilai_12      Int                          @default(0)
+  skor_13       Int                          @default(0)
+  nilai_13      Int                          @default(0)
+  skor_14       Int                          @default(0)
+  nilai_14      Int                          @default(0)
+  skor_15       Int                          @default(0)
+  nilai_15      Int                          @default(0)
+  total         Int                          @default(0)
+  rekom_dana    BigInt                       @default(0)
+  rekom_dana2   BigInt                       @default(0)
+  rekom_dana3   BigInt                       @default(0)
+  rekom_dana4   BigInt                       @default(0)
+  komentar      String                       @db.Text
+  ketetapan     tb_desk_pengabdian_ketetapan @default(revisi)
+  cat_manaj     String                       @db.Text
+  tanggal       DateTime                     @db.Date
+  created_at    DateTime                     @default(now()) @db.Timestamp(0)
+  updated_at    DateTime                     @default(now()) @db.Timestamp(0)
+  tb_usulan     tb_usulan                    @relation(fields: [id_usulan], references: [id_usulan], map: "fk_desk_peng_usulan")
+
+  @@unique([id_usulan, id_reviewer], map: "uq_desk_peng")
+}
+
+model tb_dosen {
+  nidn                  String                     @id @db.VarChar(20)
+  id_user               Int?                       @unique(map: "uq_dosen_user")
+  id_institusi          Int
+  id_fakultas           Int?
+  id_prodi              Int?
+  id_pegawai            Int?
+  nip                   String                     @default("") @db.VarChar(25)
+  nuptk                 String?                    @db.VarChar(16)
+  namalengkap           String                     @db.VarChar(100)
+  sex                   tb_dosen_sex
+  fungsional            String                     @default("") @db.VarChar(50)
+  pangkat               String                     @default("") @db.VarChar(50)
+  golongan              String                     @default("") @db.VarChar(5)
+  tmplhr                String                     @default("") @db.VarChar(100)
+  tgllhr                DateTime?                  @db.Date
+  status                tb_dosen_status            @default(aktif)
+  tahun_aktif_mulai     Int?                       @db.Year
+  tahun_aktif_selesai   Int?                       @db.Year
+  keilmuan              String                     @db.Text
+  bidang_ilmu           String?                    @db.VarChar(100)
+  alamatrumah           String                     @default("") @db.VarChar(300)
+  email                 String                     @default("") @db.VarChar(100)
+  telp                  String                     @default("") @db.VarChar(16)
+  fax                   String                     @default("") @db.VarChar(20)
+  alamatkantor          String                     @default("") @db.VarChar(500)
+  faxkantor             String                     @default("") @db.VarChar(20)
+  emailkantor           String                     @default("") @db.VarChar(100)
+  scopus_id             String                     @default("") @db.VarChar(50)
+  h_index               Int                        @default(0)
+  sinta_id              String?                    @db.VarChar(10)
+  sinta_score           Int?
+  validasi              String?                    @db.VarChar(20)
+  tgl_validasi          DateTime?                  @db.Date
+  status_penelitian     tb_dosen_status_penelitian @default(aktif)
+  status_pengabdian     tb_dosen_status_pengabdian @default(aktif)
+  tgl_update_penelitian DateTime?                  @db.DateTime(0)
+  updated_by_penelitian Int?
+  tgl_update_pengabdian DateTime?                  @db.DateTime(0)
+  updated_by_pengabdian Int?
+  created_at            DateTime                   @default(now()) @db.Timestamp(0)
+  updated_at            DateTime                   @default(now()) @db.Timestamp(0)
+  tb_fakultas           tb_fakultas?               @relation(fields: [id_fakultas], references: [id_fakultas], map: "fk_dosen_fakultas")
+  tb_institusi          tb_institusi               @relation(fields: [id_institusi], references: [id_institusi], map: "fk_dosen_institusi")
+  tb_prodi              tb_prodi?                  @relation(fields: [id_prodi], references: [id_prodi], map: "fk_dosen_prodi")
+  tb_user               tb_user?                   @relation(fields: [id_user], references: [id_user], map: "fk_dosen_user")
+  tb_dosen_pendidikan   tb_dosen_pendidikan[]
+  tb_eks_usulan         tb_eks_usulan[]
+  tb_reviewer_profil    tb_reviewer_profil?
+  tb_usulan             tb_usulan[]
+
+  @@index([id_fakultas], map: "idx_dosen_fakultas")
+  @@index([id_institusi], map: "idx_dosen_institusi")
+  @@index([id_prodi], map: "idx_dosen_prodi")
+}
+
+model tb_dosen_pendidikan {
+  id_pendidikan Int                         @id @default(autoincrement())
+  nidn          String                      @db.VarChar(20)
+  jenjang       tb_dosen_pendidikan_jenjang
+  bidang_studi  String                      @db.VarChar(200)
+  institusi     String                      @db.VarChar(200)
+  tahun_masuk   Int?                        @db.Year
+  tahun_lulus   Int?                        @db.Year
+  is_tertinggi  Int                         @default(0) @db.TinyInt
+  created_at    DateTime                    @default(now()) @db.Timestamp(0)
+  updated_at    DateTime                    @default(now()) @db.Timestamp(0)
+  tb_dosen      tb_dosen                    @relation(fields: [nidn], references: [nidn], onDelete: Cascade, map: "fk_pendidikan_dosen")
+
+  @@index([nidn], map: "idx_pendidikan_nidn")
+}
+
+model tb_eduk {
+  id_eduk      Int      @id @default(autoincrement())
+  id_institusi Int
+  id_fakultas  Int
+  tahun        Int      @db.Year
+  s1           Int      @default(0)
+  s2           Int      @default(0)
+  s3           Int      @default(0)
+  created_at   DateTime @default(now()) @db.Timestamp(0)
+  updated_at   DateTime @default(now()) @db.Timestamp(0)
+
+  @@unique([id_fakultas, tahun], map: "uq_eduk_fak_tahun")
+}
+
+model tb_eks_anggota {
+  id_anggota      Int           @id @default(autoincrement())
+  id_usulan       Int
+  nidn            String        @db.VarChar(20)
+  persetujuan     Int           @default(0) @db.TinyInt
+  tgl_persetujuan DateTime?     @db.DateTime(0)
+  created_at      DateTime      @default(now()) @db.Timestamp(0)
+  updated_at      DateTime      @default(now()) @db.Timestamp(0)
+  tb_eks_usulan   tb_eks_usulan @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_eks_anggota_usulan")
+
+  @@unique([id_usulan, nidn], map: "uq_anggota_usulan")
+}
+
+model tb_eks_assignment {
+  id_assignment          Int                      @id @default(autoincrement())
+  id_usulan              Int
+  id_reviewer            Int
+  nidn_reviewer          String                   @db.VarChar(20)
+  id_template            Int
+  tahap                  tb_eks_assignment_tahap
+  status                 tb_eks_assignment_status @default(ditugaskan)
+  ditugaskan_oleh        Int
+  nama_penugasan         String                   @default("") @db.VarChar(100)
+  tgl_ditugaskan         DateTime                 @db.Date
+  tgl_batas              DateTime?                @db.Date
+  created_at             DateTime                 @default(now()) @db.Timestamp(0)
+  updated_at             DateTime                 @default(now()) @db.Timestamp(0)
+  tb_eks_template_review tb_eks_template_review   @relation(fields: [id_template], references: [id_template], map: "fk_eks_assign_template")
+  tb_eks_usulan          tb_eks_usulan            @relation(fields: [id_usulan], references: [id_usulan], map: "fk_eks_assign_usulan")
+
+  @@unique([id_usulan, id_reviewer, tahap], map: "uq_assignment")
+  @@index([id_template], map: "fk_eks_assign_template")
+}
+
+model tb_eks_desk {
+  id_desk                Int                    @id @default(autoincrement())
+  id_usulan              Int
+  id_reviewer            Int
+  nidn_reviewer          String                 @db.VarChar(20)
+  id_template            Int
+  total_skor             Int                    @default(0)
+  rekom_dana             BigInt?
+  komentar               String?                @db.Text
+  ketetapan              tb_eks_desk_ketetapan  @default(revisi)
+  cat_manaj              String?                @db.VarChar(255)
+  tanggal                DateTime?              @db.Date
+  created_at             DateTime               @default(now()) @db.Timestamp(0)
+  updated_at             DateTime               @default(now()) @db.Timestamp(0)
+  tb_eks_template_review tb_eks_template_review @relation(fields: [id_template], references: [id_template], map: "fk_eks_desk_template")
+  tb_eks_usulan          tb_eks_usulan          @relation(fields: [id_usulan], references: [id_usulan], map: "fk_eks_desk_usulan")
+
+  @@unique([id_usulan, id_reviewer], map: "uq_desk")
+  @@index([id_template], map: "fk_eks_desk_template")
+}
+
+model tb_eks_field_review {
+  id_field               Int                    @id @default(autoincrement())
+  id_template            Int
+  indikator              String                 @db.Text
+  komponen_penilaian     String?                @db.Text
+  bobot_penilaian        Int                    @default(0)
+  skor_maks              Int                    @default(100)
+  urutan                 Int                    @default(0)
+  created_at             DateTime               @default(now()) @db.Timestamp(0)
+  updated_at             DateTime               @default(now()) @db.Timestamp(0)
+  tb_eks_template_review tb_eks_template_review @relation(fields: [id_template], references: [id_template], onDelete: Cascade, map: "fk_eks_fieldreview_template")
+  tb_eks_value_review    tb_eks_value_review[]
+
+  @@index([id_template], map: "fk_eks_fieldreview_template")
+}
+
+model tb_eks_field_usulan {
+  id_field            Int                   @id @default(autoincrement())
+  id_skema            Int
+  field_name          String                @db.VarChar(255)
+  valued_by           String                @default("manual") @db.VarChar(50)
+  label_name          String?               @db.VarChar(100)
+  input_type          String?               @db.VarChar(100)
+  reference_object    String?               @db.VarChar(100)
+  id_input            String?               @db.VarChar(100)
+  default_value       String?               @db.VarChar(100)
+  urutan              Int                   @default(0)
+  is_required         Int                   @default(0) @db.TinyInt
+  created_at          DateTime              @default(now()) @db.Timestamp(0)
+  updated_at          DateTime              @default(now()) @db.Timestamp(0)
+  tb_eks_skema        tb_eks_skema          @relation(fields: [id_skema], references: [id_skema], onDelete: Cascade, map: "fk_eks_field_skema")
+  tb_eks_value_usulan tb_eks_value_usulan[]
+
+  @@index([id_skema], map: "fk_eks_field_skema")
+}
+
+model tb_eks_lampiran {
+  id_lampiran   Int                        @id @default(autoincrement())
+  id_usulan     Int
+  jenis_file    tb_eks_lampiran_jenis_file
+  nama_file     String                     @db.VarChar(255)
+  path_file     String                     @db.VarChar(500)
+  ukuran_file   Int                        @default(0)
+  mime_type     String?                    @db.VarChar(100)
+  keterangan    String?                    @db.Text
+  diunggah_oleh Int
+  created_at    DateTime                   @default(now()) @db.Timestamp(0)
+  updated_at    DateTime                   @default(now()) @db.Timestamp(0)
+  tb_eks_usulan tb_eks_usulan              @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_eks_lampiran_usulan")
+
+  @@index([id_usulan], map: "fk_eks_lampiran_usulan")
+}
+
+model tb_eks_mahasiswa {
+  id_mahasiswa  Int           @id @default(autoincrement())
+  id_usulan     Int
+  nim           String        @db.VarChar(20)
+  nama_mhs      String        @db.VarChar(255)
+  id_fakultas   Int?
+  id_prodi      Int?
+  created_at    DateTime      @default(now()) @db.Timestamp(0)
+  updated_at    DateTime      @default(now()) @db.Timestamp(0)
+  tb_eks_usulan tb_eks_usulan @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_eks_mhs_usulan")
+
+  @@index([id_usulan], map: "fk_eks_mhs_usulan")
+}
+
+model tb_eks_mitra {
+  id_mitra      Int           @id @default(autoincrement())
+  id_usulan     Int
+  nama_mitra    String?       @db.VarChar(255)
+  instansi      String?       @db.VarChar(255)
+  created_at    DateTime      @default(now()) @db.Timestamp(0)
+  updated_at    DateTime      @default(now()) @db.Timestamp(0)
+  tb_eks_usulan tb_eks_usulan @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_eks_mitra_usulan")
+
+  @@index([id_usulan], map: "fk_eks_mitra_usulan")
+}
+
+model tb_eks_monev {
+  id_monev               Int                    @id @default(autoincrement())
+  id_usulan              Int
+  id_reviewer            Int
+  nidn_reviewer          String                 @db.VarChar(20)
+  id_template            Int
+  total_skor             Int                    @default(0)
+  rekom_dana             BigInt?
+  komentar               String?                @db.Text
+  ketetapan              tb_eks_monev_ketetapan @default(lanjut)
+  cat_manaj              String?                @db.VarChar(255)
+  tanggal                DateTime?              @db.Date
+  created_at             DateTime               @default(now()) @db.Timestamp(0)
+  updated_at             DateTime               @default(now()) @db.Timestamp(0)
+  tb_eks_template_review tb_eks_template_review @relation(fields: [id_template], references: [id_template], map: "fk_eks_monev_template")
+  tb_eks_usulan          tb_eks_usulan          @relation(fields: [id_usulan], references: [id_usulan], map: "fk_eks_monev_usulan")
+
+  @@unique([id_usulan, id_reviewer], map: "uq_monev")
+  @@index([id_template], map: "fk_eks_monev_template")
+}
+
+model tb_eks_paparan {
+  id_paparan             Int                      @id @default(autoincrement())
+  id_usulan              Int
+  id_reviewer            Int
+  nidn_reviewer          String                   @db.VarChar(20)
+  id_template            Int
+  total_skor             Int                      @default(0)
+  rekom_dana             BigInt?
+  komentar               String?                  @db.Text
+  ketetapan              tb_eks_paparan_ketetapan @default(revisi)
+  cat_manaj              String?                  @db.VarChar(255)
+  tanggal                DateTime?                @db.Date
+  created_at             DateTime                 @default(now()) @db.Timestamp(0)
+  updated_at             DateTime                 @default(now()) @db.Timestamp(0)
+  tb_eks_template_review tb_eks_template_review   @relation(fields: [id_template], references: [id_template], map: "fk_eks_paparan_template")
+  tb_eks_usulan          tb_eks_usulan            @relation(fields: [id_usulan], references: [id_usulan], map: "fk_eks_paparan_usulan")
+
+  @@unique([id_usulan, id_reviewer], map: "uq_paparan")
+  @@index([id_template], map: "fk_eks_paparan_template")
+}
+
+model tb_eks_program {
+  id_program   Int                     @id @default(autoincrement())
+  id_institusi Int
+  random_id    String?                 @unique(map: "uq_random_id") @db.VarChar(24)
+  nama_program String                  @db.VarChar(150)
+  deskripsi    String?                 @db.Text
+  kategori     tb_eks_program_kategori @default(lainnya)
+  nama_pemberi String                  @db.VarChar(200)
+  status       tb_eks_program_status   @default(aktif)
+  created_at   DateTime                @default(now()) @db.Timestamp(0)
+  updated_at   DateTime                @default(now()) @db.Timestamp(0)
+  tb_eks_skema tb_eks_skema[]
+}
+
+model tb_eks_skema {
+  id_skema               Int                      @id @default(autoincrement())
+  id_program             Int
+  nama_skema             String                   @db.VarChar(150)
+  kegiatan               tb_eks_skema_kegiatan
+  status                 tb_eks_skema_status      @default(aktif)
+  created_at             DateTime                 @default(now()) @db.Timestamp(0)
+  updated_at             DateTime                 @default(now()) @db.Timestamp(0)
+  tb_eks_field_usulan    tb_eks_field_usulan[]
+  tb_eks_program         tb_eks_program           @relation(fields: [id_program], references: [id_program], map: "fk_eks_skema_program")
+  tb_eks_skema_reviewer  tb_eks_skema_reviewer[]
+  tb_eks_syarat          tb_eks_syarat[]
+  tb_eks_template_review tb_eks_template_review[]
+  tb_eks_timeline        tb_eks_timeline[]
+  tb_eks_usulan          tb_eks_usulan[]
+
+  @@index([id_program], map: "fk_eks_skema_program")
+}
+
+model tb_eks_skema_reviewer {
+  id                 Int                @id @default(autoincrement())
+  id_skema           Int
+  id_reviewer        Int
+  ditambahkan_oleh   Int
+  created_at         DateTime           @default(now()) @db.Timestamp(0)
+  tb_reviewer_profil tb_reviewer_profil @relation(fields: [id_reviewer], references: [id_reviewer], onDelete: Cascade, map: "fk_eks_skema_rev_rev")
+  tb_eks_skema       tb_eks_skema       @relation(fields: [id_skema], references: [id_skema], onDelete: Cascade, map: "fk_eks_skema_rev_skema")
+
+  @@unique([id_skema, id_reviewer], map: "uq_eks_skema_reviewer")
+  @@index([id_reviewer], map: "fk_eks_skema_rev_rev")
+}
+
+model tb_eks_syarat {
+  id_syarat    Int          @id @default(autoincrement())
+  id_skema     Int
+  indikator    String       @db.VarChar(200)
+  operator     String       @db.VarChar(10)
+  value_type   String       @db.VarChar(10)
+  value        String       @db.VarChar(255)
+  keterangan   String?      @db.VarChar(300)
+  created_at   DateTime     @default(now()) @db.Timestamp(0)
+  tb_eks_skema tb_eks_skema @relation(fields: [id_skema], references: [id_skema], onDelete: Cascade, map: "fk_eks_syarat_skema")
+
+  @@index([id_skema], map: "fk_eks_syarat_skema")
+}
+
+model tb_eks_template_review {
+  id_template         Int                                 @id @default(autoincrement())
+  id_skema            Int?
+  nama_template       String                              @db.VarChar(255)
+  title_form_as       String?                             @db.VarChar(255)
+  level_review        tb_eks_template_review_level_review
+  auto_next_step      Int                                 @default(0) @db.TinyInt
+  petunjuk            String?                             @db.Text
+  created_at          DateTime                            @default(now()) @db.Timestamp(0)
+  updated_at          DateTime                            @default(now()) @db.Timestamp(0)
+  tb_eks_assignment   tb_eks_assignment[]
+  tb_eks_desk         tb_eks_desk[]
+  tb_eks_field_review tb_eks_field_review[]
+  tb_eks_monev        tb_eks_monev[]
+  tb_eks_paparan      tb_eks_paparan[]
+  tb_eks_skema        tb_eks_skema?                       @relation(fields: [id_skema], references: [id_skema], map: "fk_eks_template_skema")
+
+  @@index([id_skema], map: "fk_eks_template_skema")
+}
+
+model tb_eks_timeline {
+  id_timeline      Int                    @id @default(autoincrement())
+  id_skema         Int
+  nama_timeline    String                 @db.VarChar(150)
+  usulan_awal      DateTime               @db.Date
+  usulan_akhir     DateTime               @db.Date
+  desk_awal        DateTime?              @db.Date
+  desk_akhir       DateTime?              @db.Date
+  paparan_awal     DateTime?              @db.Date
+  paparan_akhir    DateTime?              @db.Date
+  pengumuman_awal  DateTime?              @db.Date
+  pengumuman_akhir DateTime?              @db.Date
+  tahun            Int                    @db.Year
+  status           tb_eks_timeline_status @default(draft)
+  created_at       DateTime               @default(now()) @db.Timestamp(0)
+  updated_at       DateTime               @default(now()) @db.Timestamp(0)
+  tb_eks_skema     tb_eks_skema           @relation(fields: [id_skema], references: [id_skema], map: "fk_eks_timeline_skema")
+  tb_eks_usulan    tb_eks_usulan[]
+
+  @@index([id_skema], map: "fk_eks_timeline_skema")
+}
+
+model tb_eks_usulan {
+  id_usulan           Int                          @id @default(autoincrement())
+  id_eks_induk        Int?
+  id_timeline         Int
+  id_skema            Int
+  id_institusi        Int
+  id_fakultas         Int?
+  id_prodi            Int?
+  nidn                String                       @db.VarChar(20)
+  judul               String                       @db.Text
+  th_usulan           Int                          @db.Year
+  jenis_kegiatan      tb_eks_usulan_jenis_kegiatan
+  usulan_dikirim      DateTime?                    @db.DateTime(0)
+  status_usulan       tb_eks_usulan_status_usulan  @default(draft)
+  dana_disetujui      BigInt                       @default(0)
+  catatan             String?                      @db.Text
+  created_at          DateTime                     @default(now()) @db.Timestamp(0)
+  updated_at          DateTime                     @default(now()) @db.Timestamp(0)
+  tb_eks_anggota      tb_eks_anggota[]
+  tb_eks_assignment   tb_eks_assignment[]
+  tb_eks_desk         tb_eks_desk[]
+  tb_eks_lampiran     tb_eks_lampiran[]
+  tb_eks_mahasiswa    tb_eks_mahasiswa[]
+  tb_eks_mitra        tb_eks_mitra[]
+  tb_eks_monev        tb_eks_monev[]
+  tb_eks_paparan      tb_eks_paparan[]
+  tb_dosen            tb_dosen                     @relation(fields: [nidn], references: [nidn], map: "fk_eks_usulan_dosen")
+  tb_eks_usulan       tb_eks_usulan?               @relation("tb_eks_usulanTotb_eks_usulan", fields: [id_eks_induk], references: [id_usulan], map: "fk_eks_usulan_induk")
+  other_tb_eks_usulan tb_eks_usulan[]              @relation("tb_eks_usulanTotb_eks_usulan")
+  tb_eks_skema        tb_eks_skema                 @relation(fields: [id_skema], references: [id_skema], map: "fk_eks_usulan_skema")
+  tb_eks_timeline     tb_eks_timeline              @relation(fields: [id_timeline], references: [id_timeline], map: "fk_eks_usulan_timeline")
+  tb_eks_usulan_log   tb_eks_usulan_log[]
+  tb_eks_value_review tb_eks_value_review[]
+  tb_eks_value_usulan tb_eks_value_usulan[]
+  tb_target_luaran    tb_target_luaran[]
+
+  @@index([nidn], map: "fk_eks_usulan_dosen")
+  @@index([id_eks_induk], map: "fk_eks_usulan_induk")
+  @@index([id_skema], map: "fk_eks_usulan_skema")
+  @@index([id_timeline], map: "fk_eks_usulan_timeline")
+}
+
+model tb_eks_usulan_log {
+  id_log         Int           @id @default(autoincrement())
+  id_usulan      Int
+  status_lama    String?       @db.VarChar(50)
+  status_baru    String        @db.VarChar(50)
+  catatan        String?       @db.Text
+  dilakukan_oleh Int
+  nama_pelaku    String        @default("") @db.VarChar(100)
+  created_at     DateTime      @default(now()) @db.Timestamp(0)
+  tb_eks_usulan  tb_eks_usulan @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_eks_log_usulan")
+
+  @@index([id_usulan], map: "fk_eks_log_usulan")
+}
+
+model tb_eks_value_review {
+  id_value            Int                       @id @default(autoincrement())
+  id_usulan           Int
+  nidn_reviewer       String                    @db.VarChar(20)
+  id_field            Int
+  tahap               tb_eks_value_review_tahap
+  skor                Int?
+  catatan             String?                   @db.VarChar(255)
+  created_at          DateTime                  @default(now()) @db.Timestamp(0)
+  updated_at          DateTime                  @default(now()) @db.Timestamp(0)
+  tb_eks_field_review tb_eks_field_review       @relation(fields: [id_field], references: [id_field], map: "fk_eks_value_review_field")
+  tb_eks_usulan       tb_eks_usulan             @relation(fields: [id_usulan], references: [id_usulan], map: "fk_eks_value_review_usulan")
+
+  @@unique([id_usulan, nidn_reviewer, id_field, tahap], map: "uq_value_review")
+  @@index([id_field], map: "fk_eks_value_review_field")
+}
+
+model tb_eks_value_usulan {
+  id_value            Int                 @id @default(autoincrement())
+  id_usulan           Int
+  id_field            Int
+  field_name          String              @db.VarChar(255)
+  value               String              @db.Text
+  created_at          DateTime            @default(now()) @db.Timestamp(0)
+  updated_at          DateTime            @default(now()) @db.Timestamp(0)
+  tb_eks_field_usulan tb_eks_field_usulan @relation(fields: [id_field], references: [id_field], map: "fk_eks_value_field")
+  tb_eks_usulan       tb_eks_usulan       @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_eks_value_usulan")
+
+  @@unique([id_usulan, id_field], map: "uq_value_usulan_field")
+  @@index([id_field], map: "fk_eks_value_field")
+}
+
+model tb_fakultas {
+  id_fakultas        Int                  @id @default(autoincrement())
+  id_institusi       Int
+  kode_fakultas      String               @db.VarChar(10)
+  nama_fakultas      String               @db.VarChar(100)
+  nama_dekan         String               @default("") @db.VarChar(200)
+  nip_dekan          String               @default("") @db.VarChar(30)
+  status             Int                  @default(1) @db.TinyInt
+  created_at         DateTime             @default(now()) @db.Timestamp(0)
+  updated_at         DateTime             @default(now()) @db.Timestamp(0)
+  tb_dosen           tb_dosen[]
+  tb_institusi       tb_institusi         @relation(fields: [id_institusi], references: [id_institusi], map: "fk_fakultas_institusi")
+  tb_prodi           tb_prodi[]
+  tb_reviewer_profil tb_reviewer_profil[]
+
+  @@index([id_institusi], map: "idx_fak_institusi")
+}
+
+model tb_haki {
+  id_hki         Int                    @id @default(autoincrement())
+  id_usulan      Int?
+  id_usulan_eks  Int?
+  id_institusi   Int
+  nidn           String                 @db.VarChar(20)
+  judul          String                 @db.VarChar(500)
+  jenis          String                 @db.VarChar(50)
+  no_pendaftaran String                 @default("") @db.VarChar(50)
+  status         String                 @db.VarChar(50)
+  no_hki         String                 @default("") @db.VarChar(50)
+  tahun          Int                    @db.Year
+  jenis_kegiatan tb_haki_jenis_kegiatan @default(mandiri)
+  jml_penemu     Int                    @default(1)
+  tgl_input      DateTime               @db.Date
+  created_at     DateTime               @default(now()) @db.Timestamp(0)
+  updated_at     DateTime               @default(now()) @db.Timestamp(0)
+}
+
+model tb_institusi {
+  id_institusi   Int               @id @default(autoincrement())
+  kode_institusi String            @unique(map: "uq_kode_institusi") @db.VarChar(50)
+  nama_institusi String            @db.VarChar(200)
+  tipe           tb_institusi_tipe
+  status         Int               @default(1) @db.TinyInt
+  created_at     DateTime          @default(now()) @db.Timestamp(0)
+  updated_at     DateTime          @default(now()) @db.Timestamp(0)
+  tb_dosen       tb_dosen[]
+  tb_fakultas    tb_fakultas[]
+  tb_prodi       tb_prodi[]
+  tb_sumberdana  tb_sumberdana[]
+  tb_user        tb_user[]
+}
+
+model tb_jenis_mitra {
+  id_jenis_mitra  Int               @id @default(autoincrement())
+  nama_jenis      String            @db.VarChar(100)
+  status          Int               @default(1) @db.TinyInt
+  created_at      DateTime          @default(now()) @db.Timestamp(0)
+  tb_usulan_mitra tb_usulan_mitra[]
+}
+
+model tb_kebijakan {
+  id_kebijakan Int      @id @default(autoincrement())
+  id_institusi Int
+  nidn         String?  @db.VarChar(20)
+  judul        String   @db.VarChar(300)
+  tahun        Int      @db.Year
+  tempat       String   @default("") @db.VarChar(200)
+  respon       String   @db.Text
+  status       Int      @default(1) @db.TinyInt
+  created_at   DateTime @default(now()) @db.Timestamp(0)
+  updated_at   DateTime @default(now()) @db.Timestamp(0)
+}
+
+model tb_kontrak {
+  id_kontrak       Int                     @id @default(autoincrement())
+  id_usulan        Int?
+  id_institusi     Int
+  nidn             String?                 @db.VarChar(20)
+  mitra            String                  @db.VarChar(200)
+  nama_kegiatan    String                  @db.VarChar(500)
+  no_kontrak       String                  @db.VarChar(50)
+  nilai_kontrak    BigInt                  @default(0)
+  tahun            Int                     @db.Year
+  lampiran         String?                 @db.VarChar(500)
+  validasi_fak     tb_kontrak_validasi_fak @default(belum)
+  tgl_validasi_fak DateTime?               @db.Date
+  validasi         tb_kontrak_validasi     @default(belum)
+  tgl_validasi     DateTime?               @db.Date
+  created_at       DateTime                @default(now()) @db.Timestamp(0)
+  updated_at       DateTime                @default(now()) @db.Timestamp(0)
+  tb_usulan        tb_usulan?              @relation(fields: [id_usulan], references: [id_usulan], map: "fk_kontrak_usulan")
+
+  @@index([id_usulan], map: "fk_kontrak_usulan")
+}
+
+model tb_logbook {
+  id_logbook       Int              @id @default(autoincrement())
+  id_pasca         Int
+  nidn             String           @db.VarChar(20)
+  tanggal          DateTime         @db.Date
+  judul            String           @db.VarChar(300)
+  uraian           String           @db.Text
+  lokasi           String?          @db.VarChar(200)
+  created_at       DateTime         @default(now()) @db.Timestamp(0)
+  updated_at       DateTime         @default(now()) @db.Timestamp(0)
+  tb_pasca_didanai tb_pasca_didanai @relation(fields: [id_pasca], references: [id_pasca], onDelete: Cascade, map: "fk_logbook_pasca")
+
+  @@index([id_pasca], map: "fk_logbook_pasca")
+}
+
+model tb_luaran_kontributor {
+  id_kontributor Int                                @id @default(autoincrement())
+  jenis_luaran   tb_luaran_kontributor_jenis_luaran
+  id_luaran_ref  Int
+  nidn           String                             @db.VarChar(20)
+  nama           String                             @db.VarChar(100)
+  institusi      String                             @default("") @db.VarChar(200)
+  urutan         Int                                @default(1)
+  created_at     DateTime                           @default(now()) @db.Timestamp(0)
+}
+
+model tb_luaran_lain {
+  id_luaran         Int                           @id @default(autoincrement())
+  id_usulan         Int?
+  id_usulan_eks     Int?
+  id_institusi      Int
+  nidn              String                        @db.VarChar(20)
+  judul             String                        @db.VarChar(500)
+  jenis_kegiatan    tb_luaran_lain_jenis_kegiatan @default(mandiri)
+  jenis_luaran      String?                       @db.VarChar(100)
+  deskripsi_singkat String                        @db.Text
+  tahun             Int                           @db.Year
+  jml_penemu        Int                           @default(1)
+  tgl_input         DateTime                      @db.Date
+  created_at        DateTime                      @default(now()) @db.Timestamp(0)
+  updated_at        DateTime                      @default(now()) @db.Timestamp(0)
+}
+
+model tb_luaran_lampiran {
+  id_lampiran   Int                             @id @default(autoincrement())
+  jenis_luaran  tb_luaran_lampiran_jenis_luaran
+  id_luaran_ref Int
+  nama_file     String                          @db.VarChar(255)
+  path_file     String                          @db.VarChar(500)
+  ukuran_file   Int                             @default(0)
+  mime_type     String?                         @db.VarChar(100)
+  diunggah_oleh Int
+  created_at    DateTime                        @default(now()) @db.Timestamp(0)
+}
+
+model tb_luaran_penulis {
+  id_penulis    Int                            @id @default(autoincrement())
+  jenis_luaran  tb_luaran_penulis_jenis_luaran
+  id_luaran_ref Int
+  nidn          String                         @db.VarChar(20)
+  nama          String                         @db.VarChar(100)
+  institusi     String                         @default("") @db.VarChar(200)
+  status        String?                        @db.VarChar(50)
+  penulis_ke    Int                            @default(1)
+  corr_auth     String?                        @db.VarChar(5)
+  created_at    DateTime                       @default(now()) @db.Timestamp(0)
+}
+
+model tb_luaran_validasi {
+  id_validasi     Int                             @id @default(autoincrement())
+  jenis_luaran    tb_luaran_validasi_jenis_luaran
+  id_luaran_ref   Int
+  tahap           tb_luaran_validasi_tahap
+  status          tb_luaran_validasi_status       @default(menunggu)
+  catatan         String?                         @db.Text
+  divalidasi_oleh Int?
+  nama_validator  String                          @default("") @db.VarChar(100)
+  tgl_validasi    DateTime?                       @db.Date
+  created_at      DateTime                        @default(now()) @db.Timestamp(0)
+  updated_at      DateTime                        @default(now()) @db.Timestamp(0)
+}
+
+model tb_lulusan {
+  id_lulusan Int      @id @default(autoincrement())
+  nidn       String   @db.VarChar(20)
+  tahun      Int      @db.Year
+  d3         Int      @default(0)
+  s1         Int      @default(0)
+  s2         Int      @default(0)
+  s3         Int      @default(0)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @db.Timestamp(0)
+
+  @@unique([nidn, tahun], map: "uq_lulusan_nidn_tahun")
+}
+
+model tb_mengajar {
+  id_matakuliah Int                  @id @default(autoincrement())
+  nidn          String               @db.VarChar(20)
+  id_prodi      Int?
+  matakuliah    String               @db.VarChar(300)
+  kode_mk       String?              @db.VarChar(20)
+  sks           Int                  @default(0) @db.TinyInt
+  tahun         Int                  @db.Year
+  semester      tb_mengajar_semester
+  status        Int                  @default(1) @db.TinyInt
+  created_at    DateTime             @default(now()) @db.Timestamp(0)
+  updated_at    DateTime             @default(now()) @db.Timestamp(0)
+}
+
+model tb_mitra_hukum {
+  id_mitra      Int      @id @default(autoincrement())
+  id_usulan     Int?
+  id_usulan_eks Int?
+  id_institusi  Int
+  nidn          String   @db.VarChar(20)
+  nama_mitra    String   @db.VarChar(200)
+  kegiatan      String   @db.VarChar(50)
+  bidang_usaha  String   @db.VarChar(100)
+  lembaga       String   @db.VarChar(100)
+  no_badanhukum String   @default("") @db.VarChar(100)
+  tahun         Int      @db.Year
+  jml_pelaksana Int      @default(1)
+  tgl_input     DateTime @db.Date
+  created_at    DateTime @default(now()) @db.Timestamp(0)
+  updated_at    DateTime @default(now()) @db.Timestamp(0)
+}
+
+model tb_modul {
+  id_modul          Int                     @id @default(autoincrement())
+  id_usulan         Int?
+  id_usulan_eks     Int?
+  id_institusi      Int
+  nidn              String                  @db.VarChar(20)
+  judul             String                  @db.VarChar(500)
+  jenis_kegiatan    tb_modul_jenis_kegiatan @default(mandiri)
+  halaman           Int                     @default(0)
+  deskripsi_singkat String                  @db.Text
+  tahun             Int                     @db.Year
+  jml_penulis       Int                     @default(1)
+  tgl_input         DateTime                @db.Date
+  created_at        DateTime                @default(now()) @db.Timestamp(0)
+  updated_at        DateTime                @default(now()) @db.Timestamp(0)
+}
+
+model tb_monev_penelitian {
+  id_monev                Int                           @id @default(autoincrement())
+  id_usulan               Int
+  id_reviewer             Int
+  nidn_reviewer           String                        @db.VarChar(20)
+  skor_1                  Int                           @default(0)
+  nilai_1                 Int                           @default(0)
+  skor_2                  Int                           @default(0)
+  nilai_2                 Int                           @default(0)
+  skor_3                  Int                           @default(0)
+  nilai_3                 Int                           @default(0)
+  skor_4                  Int                           @default(0)
+  nilai_4                 Int                           @default(0)
+  skor_5                  Int                           @default(0)
+  nilai_5                 Int                           @default(0)
+  skor_6                  Int                           @default(0)
+  nilai_6                 Int                           @default(0)
+  skor_7                  Int                           @default(0)
+  nilai_7                 Int                           @default(0)
+  skor_8                  Int                           @default(0)
+  nilai_8                 Int                           @default(0)
+  skor_9                  Int                           @default(0)
+  nilai_9                 Int                           @default(0)
+  skor_10                 Int                           @default(0)
+  nilai_10                Int                           @default(0)
+  skor_11                 Int                           @default(0)
+  nilai_11                Int                           @default(0)
+  skor_12                 Int                           @default(0)
+  nilai_12                Int                           @default(0)
+  luaran_tambahan         String?                       @db.VarChar(20)
+  catatan_luaran_tambahan String?                       @db.VarChar(255)
+  total                   Int                           @default(0)
+  komentar                String                        @db.Text
+  ketetapan               tb_monev_penelitian_ketetapan @default(lanjut)
+  review_lanjutan         String                        @db.VarChar(50)
+  rekomendasi_lanjut      String?                       @db.VarChar(100)
+  tanggal                 DateTime                      @db.Date
+  created_at              DateTime                      @default(now()) @db.Timestamp(0)
+  updated_at              DateTime                      @default(now()) @db.Timestamp(0)
+  tb_usulan               tb_usulan                     @relation(fields: [id_usulan], references: [id_usulan], map: "fk_monev_pen_usulan")
+
+  @@unique([id_usulan, id_reviewer], map: "uq_monev_pen")
+}
+
+model tb_monev_pengabdian {
+  id_monev           Int                           @id @default(autoincrement())
+  id_usulan          Int
+  id_reviewer        Int
+  nidn_reviewer      String                        @db.VarChar(20)
+  skor_1             Int                           @default(0)
+  nilai_1            Int                           @default(0)
+  skor_2             Int                           @default(0)
+  nilai_2            Int                           @default(0)
+  skor_3             Int                           @default(0)
+  nilai_3            Int                           @default(0)
+  skor_4             Int                           @default(0)
+  nilai_4            Int                           @default(0)
+  skor_5             Int                           @default(0)
+  nilai_5            Int                           @default(0)
+  skor_6             Int                           @default(0)
+  nilai_6            Int                           @default(0)
+  skor_7             Int?
+  nilai_7            Int                           @default(0)
+  skor_8             Int                           @default(0)
+  nilai_8            Int                           @default(0)
+  total              Int                           @default(0)
+  komentar           String                        @db.Text
+  ketetapan          tb_monev_pengabdian_ketetapan @default(lanjut)
+  review_lanjutan    String                        @db.VarChar(50)
+  rekomendasi_lanjut String?                       @db.VarChar(100)
+  tanggal            DateTime                      @db.Date
+  created_at         DateTime                      @default(now()) @db.Timestamp(0)
+  updated_at         DateTime                      @default(now()) @db.Timestamp(0)
+  tb_usulan          tb_usulan                     @relation(fields: [id_usulan], references: [id_usulan], map: "fk_monev_peng_usulan")
+
+  @@unique([id_usulan, id_reviewer], map: "uq_monev_peng")
+}
+
+model tb_notifikasi {
+  id_notif       Int                @id @default(autoincrement())
+  id_user        Int
+  judul          String             @db.VarChar(200)
+  pesan          String             @db.Text
+  tipe           tb_notifikasi_tipe
+  referensi_tipe String?            @db.VarChar(50)
+  referensi_id   Int?
+  is_read        Int                @default(0) @db.TinyInt
+  tgl_baca       DateTime?          @db.DateTime(0)
+  created_at     DateTime           @default(now()) @db.Timestamp(0)
+}
+
+model tb_opoc {
+  id_opoc             Int                @id @default(autoincrement())
+  id_institusi        Int
+  nidn                String             @db.VarChar(20)
+  periode             Int                @db.Year
+  nip                 String             @default("") @db.VarChar(25)
+  nama                String             @db.VarChar(100)
+  hindex              Int                @default(0)
+  bidil               String             @default("") @db.VarChar(50)
+  pem_sa              String             @default("") @db.VarChar(50)
+  persetujuan_pem_sa  String             @default("") @db.VarChar(100)
+  pem_pak             String             @default("") @db.VarChar(50)
+  persetujuan_pem_pak String             @default("") @db.VarChar(100)
+  mk                  Int                @default(0)
+  penelitian          Int                @default(0)
+  publikasi           Int                @default(0)
+  buku                Int                @default(0)
+  kum                 Float?             @db.Float
+  kekurangan_kum      Float              @default(0) @db.Float
+  judul_artikel       String             @default("") @db.VarChar(500)
+  tmt_kum             DateTime           @db.Date
+  penyempurnaan_riset String             @default("") @db.VarChar(300)
+  ketetapan           String             @default("") @db.VarChar(100)
+  created_at          DateTime           @default(now()) @db.Timestamp(0)
+  updated_at          DateTime           @default(now()) @db.Timestamp(0)
+  tb_opoc_evaluasi    tb_opoc_evaluasi[]
+  tb_opoc_rab         tb_opoc_rab?
+}
+
+model tb_opoc_evaluasi {
+  id_ev       Int      @id @default(autoincrement())
+  id_opoc     Int
+  nidn_rev    String   @db.VarChar(20)
+  nama_rev    String   @db.VarChar(100)
+  catatan     String   @db.Text
+  rekom_batch String   @db.VarChar(20)
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  tb_opoc     tb_opoc  @relation(fields: [id_opoc], references: [id_opoc], onDelete: Cascade, map: "fk_opoc_ev_opoc")
+
+  @@index([id_opoc], map: "fk_opoc_ev_opoc")
+}
+
+model tb_opoc_pembimbing {
+  id_pembimbing Int      @id @default(autoincrement())
+  nidn          String   @db.VarChar(20)
+  nama          String   @db.VarChar(300)
+  pem_sa        String   @db.VarChar(50)
+  pem_pak       String   @db.VarChar(50)
+  created_at    DateTime @default(now()) @db.Timestamp(0)
+}
+
+model tb_opoc_rab {
+  id_rab               Int      @id @default(autoincrement())
+  id_opoc              Int      @unique(map: "uq_rab_opoc")
+  dana_riset           BigInt   @default(0)
+  dana_terjemahan      BigInt   @default(0)
+  dana_proofread       BigInt   @default(0)
+  dana_submission      BigInt   @default(0)
+  dana_atk             BigInt   @default(0)
+  dana_kesekretariatan BigInt   @default(0)
+  dana_pem_sa          BigInt   @default(0)
+  dana_pem_pak         BigInt   @default(0)
+  created_at           DateTime @default(now()) @db.Timestamp(0)
+  updated_at           DateTime @default(now()) @db.Timestamp(0)
+  tb_opoc              tb_opoc  @relation(fields: [id_opoc], references: [id_opoc], onDelete: Cascade, map: "fk_opoc_rab_opoc")
+}
+
+model tb_paparan_penelitian {
+  id_paparan    Int                             @id @default(autoincrement())
+  id_usulan     Int
+  id_reviewer   Int
+  nidn_reviewer String                          @db.VarChar(20)
+  skor_1        Int                             @default(0)
+  nilai_1       Int                             @default(0)
+  skor_2        Int                             @default(0)
+  nilai_2       Int                             @default(0)
+  skor_3        Int                             @default(0)
+  nilai_3       Int                             @default(0)
+  skor_4        Int                             @default(0)
+  nilai_4       Int                             @default(0)
+  skor_5        Int                             @default(0)
+  nilai_5       Int                             @default(0)
+  skor_6        Int                             @default(0)
+  nilai_6       Int                             @default(0)
+  skor_7        Int                             @default(0)
+  nilai_7       Int                             @default(0)
+  skor_8        Int                             @default(0)
+  nilai_8       Int                             @default(0)
+  skor_9        Int                             @default(0)
+  nilai_9       Int                             @default(0)
+  skor_10       Int                             @default(0)
+  nilai_10      Int                             @default(0)
+  skor_11       Int                             @default(0)
+  nilai_11      Int                             @default(0)
+  skor_12       Int                             @default(0)
+  nilai_12      Int                             @default(0)
+  skor_13       Int                             @default(0)
+  nilai_13      Int                             @default(0)
+  total         Int                             @default(0)
+  rekom_dana    BigInt                          @default(0)
+  rekom_dana2   BigInt                          @default(0)
+  rekom_dana3   BigInt                          @default(0)
+  rekom_dana4   BigInt                          @default(0)
+  komentar      String                          @db.Text
+  ketetapan     tb_paparan_penelitian_ketetapan @default(revisi)
+  cat_manaj     String                          @db.Text
+  tanggal       DateTime                        @db.Date
+  created_at    DateTime                        @default(now()) @db.Timestamp(0)
+  updated_at    DateTime                        @default(now()) @db.Timestamp(0)
+  tb_usulan     tb_usulan                       @relation(fields: [id_usulan], references: [id_usulan], map: "fk_paparan_pen_usulan")
+
+  @@unique([id_usulan, id_reviewer], map: "uq_paparan_pen")
+}
+
+model tb_paparan_pengabdian {
+  id_paparan    Int                             @id @default(autoincrement())
+  id_usulan     Int
+  id_reviewer   Int
+  nidn_reviewer String                          @db.VarChar(20)
+  skor_1        Int                             @default(0)
+  nilai_1       Int                             @default(0)
+  skor_2        Int                             @default(0)
+  nilai_2       Int                             @default(0)
+  skor_3        Int                             @default(0)
+  nilai_3       Int                             @default(0)
+  skor_4        Int                             @default(0)
+  nilai_4       Int                             @default(0)
+  skor_5        Int                             @default(0)
+  nilai_5       Int                             @default(0)
+  skor_6        Int                             @default(0)
+  nilai_6       Int                             @default(0)
+  skor_7        Int                             @default(0)
+  nilai_7       Int                             @default(0)
+  skor_8        Int                             @default(0)
+  nilai_8       Int                             @default(0)
+  skor_9        Int                             @default(0)
+  nilai_9       Int                             @default(0)
+  skor_10       Int                             @default(0)
+  nilai_10      Int                             @default(0)
+  skor_11       Int                             @default(0)
+  nilai_11      Int                             @default(0)
+  skor_12       Int                             @default(0)
+  nilai_12      Int                             @default(0)
+  skor_13       Int                             @default(0)
+  nilai_13      Int                             @default(0)
+  skor_14       Int                             @default(0)
+  nilai_14      Int                             @default(0)
+  skor_15       Int                             @default(0)
+  nilai_15      Int                             @default(0)
+  skor_16       Int                             @default(0)
+  nilai_16      Int                             @default(0)
+  skor_17       Int                             @default(0)
+  nilai_17      Int                             @default(0)
+  skor_18       Int                             @default(0)
+  nilai_18      Int                             @default(0)
+  skor_19       Int                             @default(0)
+  nilai_19      Int                             @default(0)
+  skor_20       Int                             @default(0)
+  nilai_20      Int                             @default(0)
+  skor_21       Int                             @default(0)
+  nilai_21      Int                             @default(0)
+  skor_22       Int                             @default(0)
+  nilai_22      Int                             @default(0)
+  skor_23       Int                             @default(0)
+  nilai_23      Int                             @default(0)
+  skor_24       Int                             @default(0)
+  nilai_24      Int                             @default(0)
+  skor_25       Int                             @default(0)
+  nilai_25      Int                             @default(0)
+  skor_26       Int                             @default(0)
+  nilai_26      Int                             @default(0)
+  skor_27       Int                             @default(0)
+  nilai_27      Int                             @default(0)
+  total         Int                             @default(0)
+  rekom_dana    BigInt                          @default(0)
+  rekom_dana2   BigInt                          @default(0)
+  rekom_dana3   BigInt                          @default(0)
+  rekom_dana4   BigInt                          @default(0)
+  komentar      String                          @db.Text
+  ketetapan     tb_paparan_pengabdian_ketetapan @default(revisi)
+  cat_manaj     String                          @db.Text
+  tanggal       DateTime                        @db.Date
+  created_at    DateTime                        @default(now()) @db.Timestamp(0)
+  updated_at    DateTime                        @default(now()) @db.Timestamp(0)
+  tb_usulan     tb_usulan                       @relation(fields: [id_usulan], references: [id_usulan], map: "fk_paparan_peng_usulan")
+
+  @@unique([id_usulan, id_reviewer], map: "uq_paparan_peng")
+}
+
+model tb_pasca_anggota {
+  id_anggota       Int              @id @default(autoincrement())
+  id_pasca         Int
+  nidn             String           @db.VarChar(20)
+  nama_anggota     String           @db.VarChar(100)
+  institusi        String           @default("") @db.VarChar(200)
+  peneliti_ke      Int              @default(1)
+  ditambahkan_oleh Int
+  created_at       DateTime         @default(now()) @db.Timestamp(0)
+  updated_at       DateTime         @default(now()) @db.Timestamp(0)
+  tb_pasca_didanai tb_pasca_didanai @relation(fields: [id_pasca], references: [id_pasca], onDelete: Cascade, map: "fk_pasca_angg")
+
+  @@unique([id_pasca, nidn], map: "uq_pasca_anggota")
+}
+
+model tb_pasca_didanai {
+  id_pasca                Int                            @id @default(autoincrement())
+  id_usulan               Int                            @unique(map: "uq_pasca_usulan")
+  jenis                   tb_pasca_didanai_jenis
+  tgl_propdidanai         DateTime?                      @db.Date
+  tgl_spk                 DateTime?                      @db.Date
+  tgl_proposalpelaksanaan DateTime?                      @db.Date
+  tgl_lapkemajuan         DateTime?                      @db.Date
+  tgl_catharian1          DateTime?                      @db.Date
+  tgl_anggaran1           DateTime?                      @db.Date
+  tgl_lapakhir            DateTime?                      @db.Date
+  tgl_luaran              DateTime?                      @db.Date
+  tgl_luarantamb          DateTime?                      @db.Date
+  tgl_catharian2          DateTime?                      @db.Date
+  tgl_anggaran2           DateTime?                      @db.Date
+  semhas_status           tb_pasca_didanai_semhas_status @default(belum)
+  semhas_tgl              DateTime?                      @db.Date
+  semhas_lokasi           String?                        @db.VarChar(200)
+  semhas_catatan          String?                        @db.VarChar(500)
+  verifikasi              tb_pasca_didanai_verifikasi    @default(belum)
+  tgl_pemetaan            DateTime?                      @db.Date
+  catatan_pemetaan        String?                        @db.Text
+  status_luaran           tb_pasca_didanai_status_luaran @default(belum)
+  hilirisasi              String?                        @db.VarChar(100)
+  tkt_penelitian          Int?
+  target_luaran           Int?                           @db.Year
+  created_at              DateTime                       @default(now()) @db.Timestamp(0)
+  updated_at              DateTime                       @default(now()) @db.Timestamp(0)
+  tb_logbook              tb_logbook[]
+  tb_pasca_anggota        tb_pasca_anggota[]
+  tb_usulan               tb_usulan                      @relation(fields: [id_usulan], references: [id_usulan], map: "fk_pasca_usulan")
+  tb_pasca_lampiran       tb_pasca_lampiran[]
+}
+
+model tb_pasca_lampiran {
+  id_lampiran      Int                    @id @default(autoincrement())
+  id_pasca         Int
+  tipe             tb_pasca_lampiran_tipe
+  nama_file        String                 @db.VarChar(255)
+  path_file        String                 @db.VarChar(500)
+  ukuran_file      Int                    @default(0)
+  mime_type        String?                @db.VarChar(100)
+  diunggah_oleh    Int
+  created_at       DateTime               @default(now()) @db.Timestamp(0)
+  tb_pasca_didanai tb_pasca_didanai       @relation(fields: [id_pasca], references: [id_pasca], onDelete: Cascade, map: "fk_pasca_lamp")
+
+  @@index([id_pasca], map: "fk_pasca_lamp")
+}
+
+model tb_pemakalah {
+  id_pemakalah     Int                         @id @default(autoincrement())
+  id_usulan        Int?
+  id_usulan_eks    Int?
+  id_institusi     Int
+  nidn             String                      @db.VarChar(20)
+  judul            String                      @db.VarChar(200)
+  jenis_kegiatan   tb_pemakalah_jenis_kegiatan @default(mandiri)
+  forum            String                      @db.VarChar(200)
+  status_pemakalah String                      @db.VarChar(100)
+  institusi        String                      @default("") @db.VarChar(100)
+  tgl_awal         DateTime                    @db.Date
+  tgl_akhir        DateTime                    @db.Date
+  tempat           String                      @default("") @db.VarChar(100)
+  tahun            Int                         @db.Year
+  tingkat_forum    String                      @db.VarChar(50)
+  isbn             String                      @default("") @db.VarChar(20)
+  jml_penulis      Int                         @default(1)
+  tgl_input        DateTime                    @db.Date
+  created_at       DateTime                    @default(now()) @db.Timestamp(0)
+  updated_at       DateTime                    @default(now()) @db.Timestamp(0)
+}
+
+model tb_peneliti_asing {
+  id_peneliti        Int      @id @default(autoincrement())
+  id_institusi       Int
+  nama_peneliti      String   @db.VarChar(100)
+  jenis_kelamin      String   @db.VarChar(20)
+  nama_institusi     String   @db.VarChar(200)
+  nama_negara        String   @db.VarChar(100)
+  jenjang_pendidikan String   @db.VarChar(100)
+  kepakaran          String   @db.VarChar(200)
+  lama_tinggal       String   @db.VarChar(100)
+  tahun              Int      @db.Year
+  created_at         DateTime @default(now()) @db.Timestamp(0)
+  updated_at         DateTime @default(now()) @db.Timestamp(0)
+}
+
+model tb_penghargaan {
+  id_penghargaan Int      @id @default(autoincrement())
+  id_institusi   Int
+  nidn           String   @db.VarChar(20)
+  jenis          String   @db.VarChar(300)
+  institusi      String   @db.VarChar(300)
+  tahun          Int      @db.Year
+  status         Int      @default(1) @db.TinyInt
+  created_at     DateTime @default(now()) @db.Timestamp(0)
+  updated_at     DateTime @default(now()) @db.Timestamp(0)
+}
+
+model tb_pengumuman {
+  id_pengumuman          Int                      @id @default(autoincrement())
+  id_institusi           Int
+  diposting_oleh         Int
+  target_all             Int                      @default(1) @db.TinyInt
+  judul                  String                   @db.VarChar(500)
+  tgl_pos                DateTime                 @db.DateTime(0)
+  tgl_kadaluarsa         DateTime?                @db.DateTime(0)
+  isi                    String                   @db.Text
+  is_pinned              Int                      @default(0) @db.TinyInt
+  status                 tb_pengumuman_status     @default(terbit)
+  created_at             DateTime                 @default(now()) @db.Timestamp(0)
+  updated_at             DateTime                 @default(now()) @db.Timestamp(0)
+  tb_pengumuman_lampiran tb_pengumuman_lampiran[]
+  tb_pengumuman_role     tb_pengumuman_role[]
+
+  @@index([id_institusi], map: "idx_peng_institusi")
+}
+
+model tb_pengumuman_lampiran {
+  id_lampiran   Int           @id @default(autoincrement())
+  id_pengumuman Int
+  nama_lampiran String        @db.VarChar(500)
+  lampiran      String        @db.VarChar(500)
+  ukuran_file   Int           @default(0)
+  mime_type     String?       @db.VarChar(100)
+  created_at    DateTime      @default(now()) @db.Timestamp(0)
+  tb_pengumuman tb_pengumuman @relation(fields: [id_pengumuman], references: [id_pengumuman], onDelete: Cascade, map: "fk_peng_lamp_peng")
+
+  @@index([id_pengumuman], map: "fk_peng_lamp_peng")
+}
+
+model tb_pengumuman_role {
+  id_pengumuman Int
+  id_role       Int
+  nama_role     String        @default("") @db.VarChar(50)
+  created_at    DateTime      @default(now()) @db.Timestamp(0)
+  tb_pengumuman tb_pengumuman @relation(fields: [id_pengumuman], references: [id_pengumuman], onDelete: Cascade, map: "fk_pr_pengumuman")
+  tb_role       tb_role       @relation(fields: [id_role], references: [id_role], onDelete: Cascade, map: "fk_pr_role")
+
+  @@id([id_pengumuman, id_role])
+  @@index([id_role], map: "fk_pr_role")
+}
+
+model tb_penulisan_buku {
+  id_penulisan   Int                              @id @default(autoincrement())
+  id_usulan      Int?
+  id_usulan_eks  Int?
+  id_institusi   Int
+  nidn           String                           @db.VarChar(20)
+  judul          String                           @db.Text
+  jenis_buku     String                           @db.VarChar(50)
+  jenis_kegiatan tb_penulisan_buku_jenis_kegiatan @default(mandiri)
+  tahun          Int                              @db.Year
+  halaman        String                           @default("") @db.VarChar(10)
+  penerbit       String                           @default("") @db.VarChar(150)
+  isbn           String                           @default("") @db.VarChar(20)
+  jml_penulis    Int                              @default(1)
+  status         Int                              @default(1) @db.TinyInt
+  tgl_input      DateTime                         @db.Date
+  created_at     DateTime                         @default(now()) @db.Timestamp(0)
+  updated_at     DateTime                         @default(now()) @db.Timestamp(0)
+}
+
+model tb_permission {
+  id_permission      Int                  @id @default(autoincrement())
+  nama_permission    String               @unique(map: "uq_nama_permission") @db.VarChar(100)
+  modul              String               @db.VarChar(50)
+  deskripsi          String?              @db.VarChar(200)
+  tb_role_permission tb_role_permission[]
+}
+
+model tb_prodi {
+  id_prodi     Int              @id @default(autoincrement())
+  id_fakultas  Int
+  id_institusi Int
+  kode_prodi   String?          @db.VarChar(20)
+  nama_prodi   String           @db.VarChar(100)
+  jenjang      tb_prodi_jenjang @default(S1)
+  status       Int              @default(1) @db.TinyInt
+  created_at   DateTime         @default(now()) @db.Timestamp(0)
+  updated_at   DateTime         @default(now()) @db.Timestamp(0)
+  tb_dosen     tb_dosen[]
+  tb_fakultas  tb_fakultas      @relation(fields: [id_fakultas], references: [id_fakultas], map: "fk_prodi_fakultas")
+  tb_institusi tb_institusi     @relation(fields: [id_institusi], references: [id_institusi], map: "fk_prodi_institusi")
+
+  @@index([id_fakultas], map: "idx_prodi_fak")
+  @@index([id_institusi], map: "idx_prodi_institusi")
+}
+
+model tb_produk_inovasi {
+  id_produk      Int                              @id @default(autoincrement())
+  id_usulan      Int?
+  id_usulan_eks  Int?
+  id_institusi   Int
+  nidn           String                           @db.VarChar(20)
+  jenis_produk   tb_produk_inovasi_jenis_produk
+  nama_produk    String                           @db.VarChar(200)
+  lembaga        String                           @db.VarChar(200)
+  no_sertif      String                           @default("") @db.VarChar(50)
+  tahun          Int                              @db.Year
+  jenis_kegiatan tb_produk_inovasi_jenis_kegiatan @default(mandiri)
+  jml_penemu     Int                              @default(1)
+  tgl_input      DateTime                         @db.Date
+  created_at     DateTime                         @default(now()) @db.Timestamp(0)
+  updated_at     DateTime                         @default(now()) @db.Timestamp(0)
+}
+
+model tb_publikasi_jurnal {
+  id_publikasi   Int                                @id @default(autoincrement())
+  id_usulan      Int?
+  id_usulan_eks  Int?
+  id_institusi   Int
+  nidn           String                             @db.VarChar(20)
+  judul          String                             @db.VarChar(500)
+  nama_jurnal    String                             @db.VarChar(200)
+  status_jurnal  String                             @db.VarChar(100)
+  jenis_kegiatan tb_publikasi_jurnal_jenis_kegiatan @default(mandiri)
+  tahun          Int                                @db.Year
+  issn           String                             @default("") @db.VarChar(50)
+  vol            String                             @default("") @db.VarChar(20)
+  no             String                             @default("") @db.VarChar(20)
+  hal_awal       Int                                @default(0)
+  hal_akhir      Int                                @default(0)
+  url            String?                            @db.VarChar(500)
+  jml_penulis    Int                                @default(1)
+  tgl_input      DateTime                           @db.Date
+  created_at     DateTime                           @default(now()) @db.Timestamp(0)
+  updated_at     DateTime                           @default(now()) @db.Timestamp(0)
+}
+
+model tb_publikasi_media {
+  id_publikasi   Int                               @id @default(autoincrement())
+  id_usulan      Int?
+  id_usulan_eks  Int?
+  id_institusi   Int
+  nidn           String                            @db.VarChar(20)
+  judul          String                            @db.VarChar(500)
+  jenis_kegiatan tb_publikasi_media_jenis_kegiatan @default(mandiri)
+  jenis_media    String                            @db.VarChar(100)
+  nama_media     String                            @db.VarChar(100)
+  tgl_publikasi  DateTime                          @db.Date
+  tahun          Int                               @db.Year
+  vol            String                            @default("") @db.VarChar(20)
+  no             String                            @default("") @db.VarChar(20)
+  halaman        String                            @default("") @db.VarChar(50)
+  url            String?                           @db.VarChar(500)
+  jml_penulis    Int                               @default(1)
+  tgl_input      DateTime                          @db.Date
+  created_at     DateTime                          @default(now()) @db.Timestamp(0)
+  updated_at     DateTime                          @default(now()) @db.Timestamp(0)
+}
+
+model tb_review_assignment {
+  id_assignment      Int                         @id @default(autoincrement())
+  id_usulan          Int
+  id_reviewer        Int
+  nidn_reviewer      String                      @db.VarChar(20)
+  tahap              tb_review_assignment_tahap
+  jenis              tb_review_assignment_jenis
+  status             tb_review_assignment_status @default(ditugaskan)
+  ditugaskan_oleh    Int
+  nama_penugasan     String                      @default("") @db.VarChar(100)
+  tgl_ditugaskan     DateTime                    @db.Date
+  tgl_batas          DateTime?                   @db.Date
+  created_at         DateTime                    @default(now()) @db.Timestamp(0)
+  updated_at         DateTime                    @default(now()) @db.Timestamp(0)
+  tb_reviewer_profil tb_reviewer_profil          @relation(fields: [id_reviewer], references: [id_reviewer], map: "fk_assignment_reviewer")
+  tb_usulan          tb_usulan                   @relation(fields: [id_usulan], references: [id_usulan], map: "fk_assignment_usulan")
+
+  @@unique([id_usulan, id_reviewer, tahap], map: "uq_assignment")
+  @@index([id_reviewer], map: "fk_assignment_reviewer")
+}
+
+model tb_reviewer_profil {
+  id_reviewer           Int                               @id @default(autoincrement())
+  id_user               Int                               @unique(map: "uq_reviewer_user")
+  nidn                  String?                           @unique(map: "uq_reviewer_nidn") @db.VarChar(20)
+  nip                   String                            @default("") @db.VarChar(18)
+  pangkat               String                            @default("") @db.VarChar(200)
+  golongan              String                            @default("") @db.VarChar(10)
+  id_fakultas           Int?
+  bidang_keahlian       String                            @db.Text
+  jenis_reviewer        tb_reviewer_profil_jenis_reviewer @default(keduanya)
+  status_aktif          Int                               @default(1) @db.TinyInt
+  created_at            DateTime                          @default(now()) @db.Timestamp(0)
+  updated_at            DateTime                          @default(now()) @db.Timestamp(0)
+  tb_eks_skema_reviewer tb_eks_skema_reviewer[]
+  tb_review_assignment  tb_review_assignment[]
+  tb_dosen              tb_dosen?                         @relation(fields: [nidn], references: [nidn], map: "fk_reviewer_dosen")
+  tb_fakultas           tb_fakultas?                      @relation(fields: [id_fakultas], references: [id_fakultas], map: "fk_reviewer_fak")
+  tb_user               tb_user                           @relation(fields: [id_user], references: [id_user], map: "fk_reviewer_user")
+  tb_skema_reviewer     tb_skema_reviewer[]
+
+  @@index([id_fakultas], map: "fk_reviewer_fak")
+}
+
+model tb_role {
+  id_role            Int                  @id @default(autoincrement())
+  nama_role          String               @unique(map: "uq_nama_role") @db.VarChar(50)
+  deskripsi          String?              @db.VarChar(200)
+  created_at         DateTime             @default(now()) @db.Timestamp(0)
+  tb_pengumuman_role tb_pengumuman_role[]
+  tb_role_permission tb_role_permission[]
+  tb_user_role       tb_user_role[]
+  tb_user_session    tb_user_session[]
+}
+
+model tb_role_permission {
+  id_role       Int
+  id_permission Int
+  created_at    DateTime      @default(now()) @db.Timestamp(0)
+  tb_permission tb_permission @relation(fields: [id_permission], references: [id_permission], onDelete: Cascade, map: "fk_rp_permission")
+  tb_role       tb_role       @relation(fields: [id_role], references: [id_role], onDelete: Cascade, map: "fk_rp_role")
+
+  @@id([id_role, id_permission])
+  @@index([id_permission], map: "idx_rp_permission")
+}
+
+model tb_royalti {
+  id_royalti    Int      @id @default(autoincrement())
+  id_institusi  Int
+  nidn          String   @db.VarChar(20)
+  jenis_royalti String   @db.VarChar(50)
+  nama_royalti  String   @db.VarChar(100)
+  nilai_royalti BigInt   @default(0)
+  tahun         Int      @db.Year
+  jml_pemilik   Int      @default(1)
+  tgl_input     DateTime @db.Date
+  created_at    DateTime @default(now()) @db.Timestamp(0)
+  updated_at    DateTime @default(now()) @db.Timestamp(0)
+}
+
+model tb_skema {
+  id_skema          Int                 @id @default(autoincrement())
+  id_institusi      Int
+  id_fakultas       Int?
+  id_sumberdana     Int
+  jenis             tb_skema_jenis
+  tingkat           tb_skema_tingkat
+  nama_skema        String              @db.VarChar(150)
+  dana_sementara    BigInt              @default(0)
+  status            Int                 @default(1) @db.TinyInt
+  created_at        DateTime            @default(now()) @db.Timestamp(0)
+  updated_at        DateTime            @default(now()) @db.Timestamp(0)
+  tb_sumberdana     tb_sumberdana       @relation(fields: [id_sumberdana], references: [id_sumberdana], map: "fk_skema_sumberdana")
+  tb_skema_reviewer tb_skema_reviewer[]
+  tb_skema_syarat   tb_skema_syarat[]
+  tb_timeline       tb_timeline[]
+  tb_usulan         tb_usulan[]
+
+  @@index([id_sumberdana], map: "fk_skema_sumberdana")
+}
+
+model tb_skema_reviewer {
+  id                 Int                @id @default(autoincrement())
+  id_skema           Int
+  id_reviewer        Int
+  ditambahkan_oleh   Int
+  created_at         DateTime           @default(now()) @db.Timestamp(0)
+  tb_reviewer_profil tb_reviewer_profil @relation(fields: [id_reviewer], references: [id_reviewer], map: "fk_skema_reviewer_rev")
+  tb_skema           tb_skema           @relation(fields: [id_skema], references: [id_skema], onDelete: Cascade, map: "fk_skema_reviewer_skema")
+
+  @@unique([id_skema, id_reviewer], map: "uq_skema_reviewer")
+  @@index([id_reviewer], map: "fk_skema_reviewer_rev")
+}
+
+model tb_skema_syarat {
+  id_syarat    Int                          @id @default(autoincrement())
+  id_skema     Int
+  jenis_syarat tb_skema_syarat_jenis_syarat
+  nilai_syarat String                       @db.VarChar(100)
+  keterangan   String?                      @db.VarChar(300)
+  created_at   DateTime                     @default(now()) @db.Timestamp(0)
+  tb_skema     tb_skema                     @relation(fields: [id_skema], references: [id_skema], onDelete: Cascade, map: "fk_syarat_skema")
+
+  @@index([id_skema], map: "fk_syarat_skema")
+}
+
+model tb_stat_dosen {
+  id_stat              Int      @id @default(autoincrement())
+  nidn                 String   @db.VarChar(20)
+  tahun                Int      @db.Year
+  usulan_penelitian    Int      @default(0)
+  usulan_pengabdian    Int      @default(0)
+  didanai_penelitian   Int      @default(0)
+  didanai_pengabdian   Int      @default(0)
+  total_dana_didanai   BigInt   @default(0)
+  usulan_eksternal     Int      @default(0)
+  didanai_eksternal    Int      @default(0)
+  dana_eksternal       BigInt   @default(0)
+  total_review_selesai Int      @default(0)
+  jumlah_hki           Int      @default(0)
+  jumlah_jurnal        Int      @default(0)
+  jumlah_buku          Int      @default(0)
+  jumlah_pemakalah     Int      @default(0)
+  jumlah_ttg           Int      @default(0)
+  jumlah_luaran_lain   Int      @default(0)
+  jumlah_lulusan       Int      @default(0)
+  jumlah_mengajar      Int      @default(0)
+  total_sks_mengajar   Int      @default(0)
+  last_updated         DateTime @default(now()) @db.Timestamp(0)
+
+  @@unique([nidn, tahun], map: "uq_stat_dosen_tahun")
+}
+
+model tb_stat_fakultas {
+  id_stat            Int      @id @default(autoincrement())
+  id_fakultas        Int
+  id_institusi       Int
+  tahun              Int      @db.Year
+  total_prodi        Int      @default(0)
+  total_dosen_aktif  Int      @default(0)
+  total_mahasiswa_s1 Int      @default(0)
+  total_mahasiswa_s2 Int      @default(0)
+  total_mahasiswa_s3 Int      @default(0)
+  usulan_penelitian  Int      @default(0)
+  usulan_pengabdian  Int      @default(0)
+  didanai_penelitian Int      @default(0)
+  didanai_pengabdian Int      @default(0)
+  total_dana_didanai BigInt   @default(0)
+  total_usulan_eks   Int      @default(0)
+  total_didanai_eks  Int      @default(0)
+  total_dana_eks     BigInt   @default(0)
+  total_publikasi    Int      @default(0)
+  total_hki          Int      @default(0)
+  total_buku         Int      @default(0)
+  total_luaran_lain  Int      @default(0)
+  last_updated       DateTime @default(now()) @db.Timestamp(0)
+
+  @@unique([id_fakultas, tahun], map: "uq_stat_fak_tahun")
+}
+
+model tb_stat_prodi {
+  id_stat            Int      @id @default(autoincrement())
+  id_prodi           Int
+  id_fakultas        Int
+  id_institusi       Int
+  tahun              Int      @db.Year
+  total_dosen_aktif  Int      @default(0)
+  total_usulan       Int      @default(0)
+  total_didanai      Int      @default(0)
+  total_dana_didanai BigInt   @default(0)
+  total_usulan_eks   Int      @default(0)
+  total_didanai_eks  Int      @default(0)
+  total_dana_eks     BigInt   @default(0)
+  total_luaran       Int      @default(0)
+  total_publikasi    Int      @default(0)
+  total_hki          Int      @default(0)
+  total_mahasiswa    Int      @default(0)
+  total_lulusan      Int      @default(0)
+  last_updated       DateTime @default(now()) @db.Timestamp(0)
+
+  @@unique([id_prodi, tahun], map: "uq_stat_prodi_tahun")
+}
+
+model tb_stat_universitas {
+  id_stat              Int      @id @default(autoincrement())
+  id_institusi         Int
+  tahun                Int      @db.Year
+  total_fakultas       Int      @default(0)
+  total_prodi          Int      @default(0)
+  total_dosen          Int      @default(0)
+  total_dosen_aktif    Int      @default(0)
+  total_mahasiswa_s1   Int      @default(0)
+  total_mahasiswa_s2   Int      @default(0)
+  total_mahasiswa_s3   Int      @default(0)
+  total_lulusan_s1     Int      @default(0)
+  total_lulusan_s2     Int      @default(0)
+  total_lulusan_s3     Int      @default(0)
+  total_usulan_pen     Int      @default(0)
+  total_usulan_peng    Int      @default(0)
+  total_didanai_pen    Int      @default(0)
+  total_didanai_peng   Int      @default(0)
+  total_dana_didanai   BigInt   @default(0)
+  total_usulan_eks     Int      @default(0)
+  total_didanai_eks    Int      @default(0)
+  total_dana_eks       BigInt   @default(0)
+  total_publikasi      Int      @default(0)
+  total_publikasi_q1q2 Int      @default(0)
+  total_hki            Int      @default(0)
+  total_paten          Int      @default(0)
+  total_buku           Int      @default(0)
+  total_ttg            Int      @default(0)
+  total_pemakalah_int  Int      @default(0)
+  total_unit_bisnis    Int      @default(0)
+  total_mitra_hukum    Int      @default(0)
+  last_updated         DateTime @default(now()) @db.Timestamp(0)
+
+  @@unique([id_institusi, tahun], map: "uq_stat_univ_tahun")
+}
+
+model tb_sumberdana {
+  id_sumberdana   Int                    @id @default(autoincrement())
+  id_institusi    Int
+  kategori        tb_sumberdana_kategori
+  nama_sumberdana String                 @db.VarChar(150)
+  status          Int                    @default(1) @db.TinyInt
+  created_at      DateTime               @default(now()) @db.Timestamp(0)
+  updated_at      DateTime               @default(now()) @db.Timestamp(0)
+  tb_skema        tb_skema[]
+  tb_institusi    tb_institusi           @relation(fields: [id_institusi], references: [id_institusi], map: "fk_sumberdana_institusi")
+  tb_usulan       tb_usulan[]
+
+  @@index([id_institusi], map: "fk_sumberdana_institusi")
+}
+
+model tb_tahun_aktif {
+  id_tahun     Int                       @id @default(autoincrement())
+  id_institusi Int
+  tahun        Int                       @db.Year
+  penelitian   tb_tahun_aktif_penelitian @default(aktif)
+  pengabdian   tb_tahun_aktif_pengabdian @default(aktif)
+  is_default   Int                       @default(0) @db.TinyInt
+  created_at   DateTime                  @default(now()) @db.Timestamp(0)
+  updated_at   DateTime                  @default(now()) @db.Timestamp(0)
+
+  @@unique([tahun, id_institusi], map: "uq_tahun_institusi")
+}
+
+model tb_target_luaran {
+  id_target     Int                           @id @default(autoincrement())
+  id_usulan     Int?
+  id_usulan_eks Int?
+  jenis_luaran  tb_target_luaran_jenis_luaran
+  jumlah_target Int                           @default(1)
+  status        tb_target_luaran_status       @default(belum)
+  keterangan    String?                       @db.Text
+  catatan       String?                       @db.Text
+  tahun_target  Int                           @db.Year
+  created_at    DateTime                      @default(now()) @db.Timestamp(0)
+  updated_at    DateTime                      @default(now()) @db.Timestamp(0)
+  tb_usulan     tb_usulan?                    @relation(fields: [id_usulan], references: [id_usulan], map: "fk_target_usulan")
+  tb_eks_usulan tb_eks_usulan?                @relation(fields: [id_usulan_eks], references: [id_usulan], map: "fk_target_usulan_eks")
+
+  @@unique([id_usulan, jenis_luaran], map: "uq_target_usulan")
+  @@unique([id_usulan_eks, jenis_luaran], map: "uq_target_usulan_eks")
+}
+
+model tb_timeline {
+  id_timeline      Int                @id @default(autoincrement())
+  id_skema         Int
+  id_institusi     Int
+  tahun            Int                @db.Year
+  siklus           Int                @default(1) @db.TinyInt
+  nama_siklus      String?            @db.VarChar(100)
+  usulan_awal      DateTime           @db.Date
+  usulan_akhir     DateTime           @db.Date
+  desk_awal        DateTime?          @db.Date
+  desk_akhir       DateTime?          @db.Date
+  paparan_awal     DateTime?          @db.Date
+  paparan_akhir    DateTime?          @db.Date
+  pengumuman_awal  DateTime?          @db.Date
+  pengumuman_akhir DateTime?          @db.Date
+  status           tb_timeline_status @default(draft)
+  dibuat_oleh      Int
+  created_at       DateTime           @default(now()) @db.Timestamp(0)
+  updated_at       DateTime           @default(now()) @db.Timestamp(0)
+  tb_skema         tb_skema           @relation(fields: [id_skema], references: [id_skema], map: "fk_timeline_skema")
+  tb_usulan        tb_usulan[]
+
+  @@unique([id_skema, tahun, siklus], map: "uq_skema_tahun_siklus")
+}
+
+model tb_ttg {
+  id_ttg            Int                   @id @default(autoincrement())
+  id_usulan         Int?
+  id_usulan_eks     Int?
+  id_institusi      Int
+  nidn              String                @db.VarChar(20)
+  judul             String                @db.VarChar(500)
+  jenis_kegiatan    tb_ttg_jenis_kegiatan @default(mandiri)
+  deskripsi_singkat String                @db.Text
+  tahun             Int                   @db.Year
+  jml_penemu        Int                   @default(1)
+  tgl_input         DateTime              @db.Date
+  created_at        DateTime              @default(now()) @db.Timestamp(0)
+  updated_at        DateTime              @default(now()) @db.Timestamp(0)
+}
+
+model tb_unit_bisnis {
+  id_unitbisnis    Int      @id @default(autoincrement())
+  id_institusi     Int
+  nidn             String?  @db.VarChar(20)
+  kegiatan         String   @db.VarChar(50)
+  nama_unitbisnis  String   @db.VarChar(100)
+  lingkup_kegiatan String   @db.Text
+  mitra_bisnis     String   @db.VarChar(200)
+  sk_pendirian     String   @default("") @db.VarChar(200)
+  pendapatan       BigInt   @default(0)
+  tahun            Int      @db.Year
+  created_at       DateTime @default(now()) @db.Timestamp(0)
+  updated_at       DateTime @default(now()) @db.Timestamp(0)
+}
+
+model tb_user {
+  id_user            Int                 @id @default(autoincrement())
+  username           String              @unique(map: "uq_username") @db.VarChar(100)
+  hashing            String              @db.VarChar(500)
+  email_sso          String?             @unique(map: "uq_email_sso") @db.VarChar(100)
+  email              String              @default("") @db.VarChar(100)
+  nama               String?             @db.VarChar(100)
+  status             tb_user_status      @default(aktif)
+  id_institusi       Int
+  created_at         DateTime            @default(now()) @db.Timestamp(0)
+  updated_at         DateTime            @default(now()) @db.Timestamp(0)
+  tb_api_key         tb_api_key[]
+  tb_dosen           tb_dosen?
+  tb_reviewer_profil tb_reviewer_profil?
+  tb_institusi       tb_institusi        @relation(fields: [id_institusi], references: [id_institusi], map: "fk_user_institusi")
+  tb_user_role       tb_user_role[]
+  tb_user_session    tb_user_session[]
+
+  @@index([id_institusi], map: "idx_user_institusi")
+}
+
+model tb_user_role {
+  id_user    Int
+  id_role    Int
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  tb_role    tb_role  @relation(fields: [id_role], references: [id_role], onDelete: Cascade, map: "fk_ur_role")
+  tb_user    tb_user  @relation(fields: [id_user], references: [id_user], onDelete: Cascade, map: "fk_ur_user")
+
+  @@id([id_user, id_role])
+  @@index([id_role], map: "idx_ur_role")
+}
+
+model tb_user_session {
+  id_session  Int      @id @default(autoincrement())
+  id_user     Int
+  token       String   @unique(map: "uq_token") @db.VarChar(255)
+  expired_at  DateTime @db.DateTime(0)
+  is_active   Int      @default(1) @db.TinyInt
+  active_role Int?
+  ip_address  String?  @db.VarChar(45)
+  user_agent  String?  @db.VarChar(255)
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  tb_role     tb_role? @relation(fields: [active_role], references: [id_role], map: "fk_session_role")
+  tb_user     tb_user  @relation(fields: [id_user], references: [id_user], onDelete: Cascade, map: "fk_session_user")
+
+  @@index([active_role], map: "fk_session_role")
+  @@index([id_user], map: "idx_session_user")
+}
+
+model tb_usulan {
+  id_usulan             Int                      @id @default(autoincrement())
+  id_timeline           Int
+  id_skema              Int
+  id_sumberdana         Int
+  id_institusi          Int
+  id_fakultas           Int?
+  id_prodi              Int?
+  nidn                  String                   @db.VarChar(20)
+  jenis_kegiatan        tb_usulan_jenis_kegiatan
+  tingkat               tb_usulan_tingkat
+  judul                 String                   @db.VarChar(500)
+  th_usulan             Int                      @db.Year
+  th_pelaksanaan        Int                      @db.Year
+  lama_usulan           Int                      @default(1) @db.TinyInt
+  tahun_ke              Int                      @default(1) @db.TinyInt
+  id_usulan_induk       Int?
+  luaran                String                   @db.Text
+  unit_pengusul         String                   @db.VarChar(500)
+  id_bidang             Int?
+  jenis_penelitian      String?                  @db.VarChar(200)
+  topik                 String?                  @db.VarChar(200)
+  pusat_penelitian      String?                  @db.VarChar(500)
+  lokasi_penelitian     String?                  @db.Text
+  jenis_pengabdian      String?                  @db.VarChar(200)
+  periode_kkn           String?                  @db.VarChar(50)
+  nama_kajur            String?                  @db.VarChar(200)
+  status_usulan         tb_usulan_status_usulan  @default(draft)
+  tgl_dikirim           DateTime?                @db.DateTime(0)
+  dana_disetujui        BigInt?
+  catatan               String?                  @db.Text
+  created_at            DateTime                 @default(now()) @db.Timestamp(0)
+  updated_at            DateTime                 @default(now()) @db.Timestamp(0)
+  tb_desk_penelitian    tb_desk_penelitian[]
+  tb_desk_pengabdian    tb_desk_pengabdian[]
+  tb_kontrak            tb_kontrak[]
+  tb_monev_penelitian   tb_monev_penelitian[]
+  tb_monev_pengabdian   tb_monev_pengabdian[]
+  tb_paparan_penelitian tb_paparan_penelitian[]
+  tb_paparan_pengabdian tb_paparan_pengabdian[]
+  tb_pasca_didanai      tb_pasca_didanai?
+  tb_review_assignment  tb_review_assignment[]
+  tb_target_luaran      tb_target_luaran[]
+  tb_bidang_penelitian  tb_bidang_penelitian?    @relation(fields: [id_bidang], references: [id_bidang], map: "fk_usulan_bidang")
+  tb_dosen              tb_dosen                 @relation(fields: [nidn], references: [nidn], map: "fk_usulan_dosen")
+  tb_usulan             tb_usulan?               @relation("tb_usulanTotb_usulan", fields: [id_usulan_induk], references: [id_usulan], map: "fk_usulan_induk")
+  other_tb_usulan       tb_usulan[]              @relation("tb_usulanTotb_usulan")
+  tb_skema              tb_skema                 @relation(fields: [id_skema], references: [id_skema], map: "fk_usulan_skema")
+  tb_sumberdana         tb_sumberdana            @relation(fields: [id_sumberdana], references: [id_sumberdana], map: "fk_usulan_sumberdana")
+  tb_timeline           tb_timeline              @relation(fields: [id_timeline], references: [id_timeline], map: "fk_usulan_timeline")
+  tb_usulan_anggota     tb_usulan_anggota[]
+  tb_usulan_biaya       tb_usulan_biaya?
+  tb_usulan_lampiran    tb_usulan_lampiran[]
+  tb_usulan_log         tb_usulan_log[]
+  tb_usulan_mahasiswa   tb_usulan_mahasiswa[]
+  tb_usulan_mitra       tb_usulan_mitra[]
+  tb_usulan_pembimbing  tb_usulan_pembimbing[]
+  tb_usulan_pengesahan  tb_usulan_pengesahan?
+  tb_usulan_validasi    tb_usulan_validasi[]
+
+  @@index([id_bidang], map: "fk_usulan_bidang")
+  @@index([nidn], map: "fk_usulan_dosen")
+  @@index([id_usulan_induk], map: "fk_usulan_induk")
+  @@index([id_skema], map: "fk_usulan_skema")
+  @@index([id_sumberdana], map: "fk_usulan_sumberdana")
+  @@index([id_timeline], map: "fk_usulan_timeline")
+}
+
+model tb_usulan_anggota {
+  id_anggota      Int       @id @default(autoincrement())
+  id_usulan       Int
+  nidn            String    @db.VarChar(20)
+  persetujuan     Int       @default(0) @db.TinyInt
+  tgl_persetujuan DateTime? @db.DateTime(0)
+  created_at      DateTime  @default(now()) @db.Timestamp(0)
+  tb_usulan       tb_usulan @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_anggota_usulan")
+
+  @@unique([id_usulan, nidn], map: "uq_anggota_usulan")
+}
+
+model tb_usulan_biaya {
+  id_biaya             Int       @id @default(autoincrement())
+  id_usulan            Int       @unique(map: "uq_biaya_usulan")
+  biaya_usulan_th1     BigInt    @default(0)
+  biaya_usulan_th2     BigInt?
+  biaya_usulan_th3     BigInt?
+  biaya_mitra          BigInt    @default(0)
+  biaya_instansilain   BigInt    @default(0)
+  kontribusi_mitra     BigInt?
+  kontribusi_mitra_ket String?   @db.Text
+  instansilain         String?   @db.VarChar(200)
+  kontribusi_lain      BigInt?
+  keterangan_lain      String?   @db.Text
+  created_at           DateTime  @default(now()) @db.Timestamp(0)
+  updated_at           DateTime  @default(now()) @db.Timestamp(0)
+  tb_usulan            tb_usulan @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_biaya_usulan")
+}
+
+model tb_usulan_lampiran {
+  id_lampiran   Int                     @id @default(autoincrement())
+  id_usulan     Int
+  tipe          tb_usulan_lampiran_tipe
+  nama_file     String                  @db.VarChar(255)
+  path_file     String                  @db.VarChar(500)
+  ukuran_file   Int                     @default(0)
+  mime_type     String?                 @db.VarChar(100)
+  diunggah_oleh Int
+  created_at    DateTime                @default(now()) @db.Timestamp(0)
+  tb_usulan     tb_usulan               @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_lampiran_usulan")
+
+  @@index([id_usulan], map: "fk_lampiran_usulan")
+}
+
+model tb_usulan_log {
+  id_log         Int       @id @default(autoincrement())
+  id_usulan      Int
+  status_lama    String?   @db.VarChar(50)
+  status_baru    String    @db.VarChar(50)
+  catatan        String?   @db.Text
+  dilakukan_oleh Int
+  nama_pelaku    String    @default("") @db.VarChar(100)
+  created_at     DateTime  @default(now()) @db.Timestamp(0)
+  tb_usulan      tb_usulan @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_log_usulan")
+
+  @@index([id_usulan], map: "fk_log_usulan")
+}
+
+model tb_usulan_mahasiswa {
+  id_mahasiswa  Int       @id @default(autoincrement())
+  id_usulan     Int
+  nim           String    @db.VarChar(20)
+  namamahasiswa String    @db.VarChar(100)
+  id_prodi      Int?
+  created_at    DateTime  @default(now()) @db.Timestamp(0)
+  tb_usulan     tb_usulan @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_mhs_usulan")
+
+  @@index([id_usulan], map: "fk_mhs_usulan")
+}
+
+model tb_usulan_mitra {
+  id_mitra       Int             @id @default(autoincrement())
+  id_usulan      Int
+  id_jenis_mitra Int?
+  namamitra      String          @db.VarChar(200)
+  instansi       String?         @db.VarChar(200)
+  bidang_mitra   String?         @db.VarChar(100)
+  omset          BigInt?
+  nama_produk    String?         @db.VarChar(200)
+  ketua_mitra    String?         @db.VarChar(200)
+  alamat         String?         @db.VarChar(300)
+  kelurahan      String?         @db.VarChar(100)
+  kecamatan      String?         @db.VarChar(100)
+  kabupaten      String?         @db.VarChar(100)
+  provinsi       String?         @db.VarChar(100)
+  gmaps          String?         @db.VarChar(500)
+  telp           String?         @db.VarChar(20)
+  email          String?         @db.VarChar(200)
+  desa           String?         @db.VarChar(300)
+  kades          String?         @db.VarChar(300)
+  created_at     DateTime        @default(now()) @db.Timestamp(0)
+  tb_jenis_mitra tb_jenis_mitra? @relation(fields: [id_jenis_mitra], references: [id_jenis_mitra], map: "fk_mitra_jenis")
+  tb_usulan      tb_usulan       @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_mitra_usulan")
+
+  @@index([id_jenis_mitra], map: "fk_mitra_jenis")
+  @@index([id_usulan], map: "fk_mitra_usulan")
+}
+
+model tb_usulan_pembimbing {
+  id_pembimbing Int       @id @default(autoincrement())
+  id_usulan     Int
+  nidn          String    @db.VarChar(20)
+  created_at    DateTime  @default(now()) @db.Timestamp(0)
+  tb_usulan     tb_usulan @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_pembimbing_usulan")
+
+  @@unique([id_usulan, nidn], map: "uq_pembimbing_usulan")
+}
+
+model tb_usulan_pengesahan {
+  id_pengesahan  Int       @id @default(autoincrement())
+  id_usulan      Int       @unique(map: "uq_pengesahan_usulan")
+  pimpinan       String    @db.VarChar(300)
+  nip_pimpinan   String    @db.VarChar(18)
+  jabatan        String    @db.VarChar(200)
+  ketua_lppm     String    @db.VarChar(200)
+  nip_ketualppm  String    @db.VarChar(18)
+  tgl_pengesahan DateTime? @db.Date
+  created_at     DateTime  @default(now()) @db.Timestamp(0)
+  updated_at     DateTime  @default(now()) @db.Timestamp(0)
+  tb_usulan      tb_usulan @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_pengesahan_usulan")
+}
+
+model tb_usulan_validasi {
+  id_validasi     Int                       @id @default(autoincrement())
+  id_usulan       Int
+  tahap           tb_usulan_validasi_tahap
+  status          tb_usulan_validasi_status @default(menunggu)
+  catatan         String?                   @db.Text
+  divalidasi_oleh Int?
+  nama_validator  String                    @default("") @db.VarChar(100)
+  tgl_validasi    DateTime?                 @db.DateTime(0)
+  is_current      Int                       @default(1) @db.TinyInt
+  created_at      DateTime                  @default(now()) @db.Timestamp(0)
+  updated_at      DateTime                  @default(now()) @db.Timestamp(0)
+  tb_usulan       tb_usulan                 @relation(fields: [id_usulan], references: [id_usulan], onDelete: Cascade, map: "fk_validasi_usulan")
+
+  @@index([id_usulan], map: "fk_validasi_usulan")
+}
+
+enum tb_luaran_kontributor_jenis_luaran {
+  hki
+  ttg
+  luaran_lain
+  produk_inovasi
+  royalti
+  mitra_hukum
+}
+
+enum tb_luaran_lampiran_jenis_luaran {
+  hki
+  jurnal
+  buku
+  makalah
+  ttg
+  luaran_lain
+  royalti
+  produk_inovasi
+  media
+  penghargaan
+  mitra_hukum
+  peneliti_asing
+  unit_bisnis
+  apc
+  opoc
+  modul
+}
+
+enum tb_luaran_penulis_jenis_luaran {
+  jurnal
+  makalah
+  media
+  modul
+  buku
+}
+
+enum tb_luaran_validasi_jenis_luaran {
+  hki
+  jurnal
+  buku
+  makalah
+  ttg
+  luaran_lain
+  royalti
+  produk_inovasi
+  media
+  penghargaan
+  mitra_hukum
+  peneliti_asing
+  unit_bisnis
+  apc
+  opoc
+  modul
+}
+
+enum tb_apc_lampiran_jenis_lampiran {
+  invoice
+  payment
+  artikel
+  ktp
+  npwp
+  rekening
+  surat_pernyataan
+}
+
+enum tb_dosen_pendidikan_jenjang {
+  D3
+  D4
+  S1
+  S2
+  S3
+  Profesi
+  Sp1
+  Sp2
+}
+
+enum tb_eks_lampiran_jenis_file {
+  proposal_usulan
+  proposal_pelaksanaan
+  spk
+  lampiran
+  laporan_kemajuan
+  laporan_akhir
+  rekap_dana
+  catatan_harian
+  luaran
+  lainnya
+}
+
+enum tb_pasca_didanai_jenis {
+  penelitian
+  pengabdian
+}
+
+enum tb_pasca_lampiran_tipe {
+  prop_didanai
+  spk
+  prop_pelaksanaan
+  lap_kemajuan
+  cat_harian_1
+  anggaran_1
+  lap_akhir
+  luaran_wajib
+  luaran_tambahan
+  cat_harian_2
+  anggaran_2
+  semhas
+  lainnya
+}
+
+enum tb_skema_syarat_jenis_syarat {
+  pendidikan_min
+  fungsional_min
+  golongan_min
+  max_usulan_aktif
+  status_penelitian
+  status_pengabdian
+  lainnya
+}
+
+enum tb_sumberdana_kategori {
+  internal
+  eksternal
+}
+
+enum tb_usulan_lampiran_tipe {
+  proposal
+  rab
+  cv
+  jadwal
+  pernyataan
+  mitra
+  spk
+  lainnya
+}
+
+enum tb_usulan_validasi_tahap {
+  prodi
+  fakultas
+  lppm
+}
+
+enum tb_eks_skema_kegiatan {
+  penelitian
+  pengabdian
+}
+
+enum tb_institusi_tipe {
+  universitas
+  fakultas
+  prodi
+  unit
+}
+
+enum tb_luaran_validasi_tahap {
+  fakultas
+  lppm
+}
+
+enum tb_tahun_aktif_penelitian {
+  aktif
+  nonaktif
+}
+
+enum tb_target_luaran_jenis_luaran {
+  jurnal_q1
+  jurnal_q2
+  jurnal_q3
+  jurnal_q4
+  jurnal_int_lain
+  jurnal_nas_akre
+  jurnal_nas_nonakre
+  pros_int_scopus
+  pros_int_nonscopus
+  pros_nas_isbn
+  prototipe
+  prototipe_industri
+  buku_isbn
+  hki_paten
+  hki_nonpaten
+  pemakalah_int
+  pemakalah_nas
+  ttg
+  video
+  kerjasama_mou
+  kerjasama_sic
+  mitra_produktivitas
+  mitra_produk_tersertifikasi
+  mitra_produk_terstandarisasi
+  mitra_peningkatan_status
+  mitra_peningkatan_kualitas
+  mitra_perluasan_jaringan
+  mitra_peningkatan_akses
+  mitra_peningkatan_omset
+  mitra_peningkatan_aset
+  mitra_peningkatan_pekerja
+  mitra_peningkatan_manajemen
+  mitra_peningkatan_sda
+  mitra_pengembangan_soseko
+  mitra_konservasi
+  mitra_perbaikan_karakter
+  publikasi_media
+  lainnya
+}
+
+enum tb_usulan_validasi_status {
+  menunggu
+  disetujui
+  ditolak
+  revisi
+}
+
+enum tb_eks_skema_status {
+  aktif
+  nonaktif
+}
+
+enum tb_eks_template_review_level_review {
+  desk
+  paparan
+  monev
+}
+
+enum tb_eks_value_review_tahap {
+  desk
+  paparan
+  monev
+}
+
+enum tb_luaran_validasi_status {
+  menunggu
+  disetujui
+  ditolak
+}
+
+enum tb_notifikasi_tipe {
+  undangan_anggota
+  respon_anggota
+  validasi_usulan
+  penugasan_reviewer
+  hasil_review
+  verifikasi_dokumen
+  validasi_luaran
+  pengumuman
+  sistem
+}
+
+enum tb_review_assignment_tahap {
+  desk
+  paparan
+  monev
+}
+
+enum tb_skema_jenis {
+  penelitian
+  pengabdian
+}
+
+enum tb_tahun_aktif_pengabdian {
+  aktif
+  nonaktif
+}
+
+enum tb_eks_assignment_tahap {
+  desk
+  paparan
+  monev
+}
+
+enum tb_eks_program_kategori {
+  kementerian
+  industri
+  lembaga_internasional
+  pemda
+  lainnya
+}
+
+enum tb_prodi_jenjang {
+  D3
+  D4
+  S1
+  S2
+  S3
+  Profesi
+}
+
+enum tb_produk_inovasi_jenis_produk {
+  tersertifikasi
+  terstandarisasi
+}
+
+enum tb_review_assignment_jenis {
+  penelitian
+  pengabdian
+}
+
+enum tb_skema_tingkat {
+  fakultas
+  universitas
+}
+
+enum tb_target_luaran_status {
+  belum
+  submitted
+  accepted
+  published
+  tercapai
+  tidak_tercapai
+}
+
+enum tb_eks_assignment_status {
+  ditugaskan
+  sedang_review
+  selesai
+  dibatalkan
+}
+
+enum tb_luaran_lain_jenis_kegiatan {
+  penelitian
+  pengabdian
+  mandiri
+}
+
+enum tb_modul_jenis_kegiatan {
+  penelitian
+  pengabdian
+  mandiri
+}
+
+enum tb_pemakalah_jenis_kegiatan {
+  penelitian
+  pengabdian
+  mandiri
+}
+
+enum tb_publikasi_media_jenis_kegiatan {
+  penelitian
+  pengabdian
+  mandiri
+}
+
+enum tb_review_assignment_status {
+  ditugaskan
+  sedang_review
+  selesai
+  dibatalkan
+}
+
+enum tb_ttg_jenis_kegiatan {
+  penelitian
+  pengabdian
+  mandiri
+}
+
+enum tb_user_status {
+  aktif
+  nonaktif
+  suspend
+}
+
+enum tb_eks_program_status {
+  aktif
+  nonaktif
+  arsip
+}
+
+enum tb_mengajar_semester {
+  ganjil
+  genap
+  pendek
+}
+
+enum tb_penulisan_buku_jenis_kegiatan {
+  penelitian
+  pengabdian
+  mandiri
+}
+
+enum tb_eks_desk_ketetapan {
+  didanai
+  tidak_didanai
+  revisi
+}
+
+enum tb_eks_monev_ketetapan {
+  lanjut
+  tidak_lanjut
+  selesai
+}
+
+enum tb_eks_paparan_ketetapan {
+  didanai
+  tidak_didanai
+  revisi
+}
+
+enum tb_publikasi_jurnal_jenis_kegiatan {
+  penelitian
+  pengabdian
+  mandiri
+}
+
+enum tb_reviewer_profil_jenis_reviewer {
+  penelitian
+  pengabdian
+  keduanya
+}
+
+enum tb_usulan_jenis_kegiatan {
+  penelitian
+  pengabdian
+}
+
+enum tb_dosen_sex {
+  L
+  P
+}
+
+enum tb_pengumuman_status {
+  draft
+  terbit
+  arsip
+}
+
+enum tb_usulan_tingkat {
+  fakultas
+  universitas
+}
+
+enum tb_eks_usulan_jenis_kegiatan {
+  penelitian
+  pengabdian
+}
+
+enum tb_kontrak_validasi_fak {
+  belum
+  disetujui
+  ditolak
+}
+
+enum tb_produk_inovasi_jenis_kegiatan {
+  penelitian
+  pengabdian
+  mandiri
+}
+
+enum tb_haki_jenis_kegiatan {
+  penelitian
+  pengabdian
+  mandiri
+}
+
+enum tb_eks_timeline_status {
+  draft
+  aktif
+  selesai
+}
+
+enum tb_eks_usulan_status_usulan {
+  draft
+  dikirim
+  on_desk
+  on_paparan
+  on_monev
+  didanai
+  tidak_didanai
+  revisi
+  dibatalkan
+}
+
+enum tb_kontrak_validasi {
+  belum
+  disetujui
+  ditolak
+}
+
+enum tb_pasca_didanai_semhas_status {
+  belum
+  terjadwal
+  selesai
+}
+
+enum tb_timeline_status {
+  draft
+  aktif
+  selesai
+}
+
+enum tb_dosen_status {
+  aktif
+  nonaktif
+}
+
+enum tb_pasca_didanai_verifikasi {
+  belum
+  lengkap
+  revisi
+  disetujui
+  ditolak
+}
+
+enum tb_pasca_didanai_status_luaran {
+  belum
+  sebagian
+  tercapai
+  tidak_tercapai
+}
+
+enum tb_desk_penelitian_ketetapan {
+  didanai
+  tidak_didanai
+  revisi
+}
+
+enum tb_monev_pengabdian_ketetapan {
+  lanjut
+  tidak_lanjut
+  selesai
+}
+
+enum tb_usulan_status_usulan {
+  draft
+  dikirim
+  validasi_prodi
+  validasi_fak
+  on_desk
+  on_paparan
+  on_monev
+  didanai
+  tidak_didanai
+  revisi
+  dibatalkan
+}
+
+enum tb_monev_penelitian_ketetapan {
+  lanjut
+  tidak_lanjut
+  selesai
+}
+
+enum tb_dosen_status_penelitian {
+  aktif
+  nonaktif
+}
+
+enum tb_dosen_status_pengabdian {
+  aktif
+  nonaktif
+}
+
+enum tb_paparan_penelitian_ketetapan {
+  didanai
+  tidak_didanai
+  revisi
+}
+
+enum tb_desk_pengabdian_ketetapan {
+  didanai
+  tidak_didanai
+  revisi
+}
+
+enum tb_paparan_pengabdian_ketetapan {
+  didanai
+  tidak_didanai
+  revisi
+}
