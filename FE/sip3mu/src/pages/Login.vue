@@ -26,9 +26,25 @@
           class="input-field"
           required
         />
-        <button type="submit" class="btn-outline">LOGIN</button>
+        
+        <input
+          type="password"
+          v-model="password"
+          placeholder="Password"
+          class="input-field"
+          required
+        />
+        
+        <button type="submit" class="btn-outline" :disabled="loading">
+          {{ loading ? 'Memproses...' : 'LOGIN' }}
+        </button>
         <button type="button" class="btn-solid">Reset Password</button>
       </form>
+
+      <!-- Pesan Error jika gagal login -->
+      <p v-if="error" style="color: red; text-align: center; margin-top: 10px;">
+        {{ error.message }}
+      </p>
 
       <div style="margin-top: 20px; font-size: 14px">
         <p>
@@ -46,12 +62,50 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { gql } from "@apollo/client/core";
+import { useMutation } from "@vue/apollo-composable";
 
 const router = useRouter();
 const username = ref("");
+const password = ref("");
 
-const handleLogin = () => {
-  router.push("/dashboard");
+// Definisikan Mutation Login
+const LOGIN_MUTATION = gql`
+  mutation Login($username: String!, $password: String!) {
+    login(username: $username, password: $password) {
+      token
+      user {
+        nama
+      }
+    }
+  }
+`;
+
+// Panggil useMutation
+const { mutate: loginMutation, loading, error } = useMutation(LOGIN_MUTATION);
+
+// Fungsi eksekusi saat tombol submit ditekan
+const handleLogin = async () => {
+  try {
+    const response = await loginMutation({
+      username: username.value,
+      password: password.value,
+    });
+
+    // Ambil data token dan nama dari respons backend
+    const token = response.data.login.token;
+    const namaUser = response.data.login.user.nama;
+
+    // Simpan token ke penyimpanan browser
+    localStorage.setItem("sip3mu_token", token);
+    
+    alert(`Selamat datang, ${namaUser}!`);
+
+    // Arahkan ke dashboard
+    router.push("/dashboard");
+  } catch (err) {
+    console.error("Login Error:", err);
+  }
 };
 </script>
 

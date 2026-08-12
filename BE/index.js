@@ -3,39 +3,17 @@ import express from 'express';
 import cors from 'cors';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express4';
-
-// Import Prisma dengan aman
 import pkg from '@prisma/client';
+import jwt from 'jsonwebtoken';
+
+// 1. IMPORT MODUL YANG SUDAH DIGABUNG
+import { typeDefs, resolvers } from './modules/index.js';
+
 const { PrismaClient } = pkg;
-
-// Inisialisasi super simpel
 const prisma = new PrismaClient();
-
 const app = express();
 
-const typeDefs = `#graphql
-  type Institusi {
-    id_institusi: Int!
-    kode_institusi: String!
-    nama_institusi: String!
-    tipe: String!
-  }
-
-  type Query {
-    getInstitusi: [Institusi]
-    halo: String
-  }
-`;
-
-const resolvers = {
-  Query: {
-    halo: () => 'Halo dari Backend SIP3MU!',
-    getInstitusi: async () => {
-      return await prisma.tb_institusi.findMany();
-    },
-  },
-};
-
+// 2. SETUP APOLLO SERVER
 const server = new ApolloServer({
   typeDefs,
   resolvers,
@@ -43,12 +21,27 @@ const server = new ApolloServer({
 
 await server.start();
 
+// 3. SETUP EXPRESS & CONTEXT
 app.use(
   '/graphql',
   cors(),
   express.json(),
   expressMiddleware(server, {
-    context: async () => ({ prisma }),
+    context: async ({ req }) => {
+      const authHeader = req.headers.authorization || '';
+      let currentUser = null;
+
+      if (authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        try {
+          currentUser = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (error) {
+          console.log('Token tidak valid atau sudah kedaluwarsa');
+        }
+      }
+
+      return { prisma, currentUser };
+    },
   })
 );
 
